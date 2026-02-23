@@ -3,20 +3,21 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, CalendarClock, Repeat, HandCoins } from 'lucide-react';
+import { LayoutDashboard, CalendarClock, Repeat, HandCoins, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const nav: Array<{ href: Route; label: string; icon: React.ComponentType<{ className?: string }> }> = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
   { href: '/emis', label: 'EMIs', icon: CalendarClock },
   { href: '/recurring', label: 'Recurring', icon: Repeat },
-  { href: '/khata', label: 'Khata', icon: HandCoins }
+  { href: '/khata', label: 'Khata', icon: HandCoins },
+  { href: '/reports', label: 'Reports', icon: BarChart3 }
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="fixed bottom-4 left-4 right-4 z-30 grid grid-cols-4 rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-glass)] p-2 backdrop-blur-xl lg:hidden">
+    <nav className="fixed bottom-4 left-4 right-4 z-30 grid grid-cols-5 rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-glass)] p-2 backdrop-blur-xl lg:hidden">
       {nav.map((item) => {
         const Icon = item.icon;
         const active = pathname.startsWith(item.href);

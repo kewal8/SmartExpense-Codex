@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Bell, Search, UserCircle2 } from 'lucide-react';
 
 export function MobileTopBar() {
@@ -21,13 +22,13 @@ export function MobileTopBar() {
         >
           <Bell className="h-5 w-5" />
         </button>
-        <button
-          type="button"
-          aria-label="Profile"
+        <Link
+          href="/settings"
+          aria-label="Open settings"
           className="inline-flex h-11 w-11 items-center justify-center rounded-xl p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]"
         >
           <UserCircle2 className="h-5 w-5" />
-        </button>
+        </Link>
       </div>
     </header>
   );

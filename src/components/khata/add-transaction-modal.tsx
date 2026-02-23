@@ -64,6 +64,8 @@ export function AddTransactionModal({
     },
     onSuccess: (_, variables) => {
       qc.invalidateQueries({ queryKey: ['dashboard-stats'] });
+      qc.invalidateQueries({ queryKey: ['dashboard-reminders'] });
+      qc.invalidateQueries({ queryKey: ['dashboard-collect-reminders'] });
       qc.invalidateQueries({ queryKey: ['persons'] });
       qc.invalidateQueries({ queryKey: ['transactions'] });
       qc.invalidateQueries({ queryKey: ['person-khata', variables.personId] });

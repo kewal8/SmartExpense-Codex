@@ -9,6 +9,13 @@ import { CategoryPie } from '@/components/reports/category-pie';
 import { ExportButtons } from '@/components/reports/export-buttons';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/lib/utils';
+
+type ReportSummary = {
+  monthlyEmi: Array<{ month: string; total: number; count: number }>;
+  totalEmi: number;
+  totalRecurring: number;
+};
 
 export default function ReportsPage() {
   const router = useRouter();
@@ -30,12 +37,48 @@ export default function ReportsPage() {
     }
   });
 
+  const summary = useQuery<ReportSummary>({
+    queryKey: ['reports-summary'],
+    queryFn: async () => {
+      const res = await fetch('/api/reports/summary');
+      if (!res.ok) throw new Error('Failed summary report');
+      return (await res.json()).data;
+    }
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-[28px] font-bold tracking-[-0.02em]">Reports</h1>
         <ExportButtons />
       </div>
+
+      <section className="glass-card p-4">
+        <h2 className="text-xl font-semibold">Summary</h2>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="rounded-xl border border-[var(--border-glass)] bg-[var(--bg-card)] p-3">
+            <p className="text-xs text-[var(--text-secondary)]">Total EMI</p>
+            <p className="mt-1 font-mono text-lg font-semibold">{formatCurrency(summary.data?.totalEmi ?? 0)}</p>
+          </div>
+          <div className="rounded-xl border border-[var(--border-glass)] bg-[var(--bg-card)] p-3">
+            <p className="text-xs text-[var(--text-secondary)]">Total Recurring</p>
+            <p className="mt-1 font-mono text-lg font-semibold">{formatCurrency(summary.data?.totalRecurring ?? 0)}</p>
+          </div>
+          <div className="rounded-xl border border-[var(--border-glass)] bg-[var(--bg-card)] p-3">
+            <p className="text-xs text-[var(--text-secondary)]">EMIs per month (last 12 months)</p>
+            <div className="mt-2 max-h-28 space-y-1 overflow-y-auto pr-1 text-xs">
+              {(summary.data?.monthlyEmi ?? []).map((item) => (
+                <div key={item.month} className="flex items-center justify-between text-[var(--text-secondary)]">
+                  <span>{item.month}</span>
+                  <span className="font-medium text-[var(--text-primary)]">
+                    {item.count} | {formatCurrency(item.total)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {(monthly.data ?? []).length === 0 && (category.data ?? []).length === 0 ? (
         <EmptyState

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { StatsRow } from '@/components/dashboard/stats-row';
+import { AmountToCollect } from '@/components/dashboard/amount-to-collect';
 import { PaymentReminders } from '@/components/dashboard/payment-reminders';
 import { RecentExpenses } from '@/components/dashboard/recent-expenses';
 import { AddExpenseModal } from '@/components/expenses/add-expense-modal';
@@ -21,6 +22,12 @@ async function getStats() {
 async function getReminders() {
   const res = await fetch('/api/dashboard/reminders');
   if (!res.ok) throw new Error('Failed to fetch reminders');
+  return (await res.json()).data;
+}
+
+async function getCollectReminders() {
+  const res = await fetch('/api/dashboard/collect-reminders');
+  if (!res.ok) throw new Error('Failed to fetch collection reminders');
   return (await res.json()).data;
 }
 
@@ -63,6 +70,7 @@ export default function DashboardPage() {
 
   const stats = useQuery({ queryKey: ['dashboard-stats'], queryFn: getStats });
   const reminders = useQuery({ queryKey: ['dashboard-reminders'], queryFn: getReminders });
+  const collectReminders = useQuery({ queryKey: ['dashboard-collect-reminders'], queryFn: getCollectReminders });
   const expenses = useQuery({ queryKey: ['dashboard-recent-expenses'], queryFn: getExpenses });
   const types = useQuery({ queryKey: ['expense-types'], queryFn: getTypes });
   const persons = useQuery<PersonOption[]>({ queryKey: ['persons'], queryFn: getPersons });
@@ -112,6 +120,12 @@ export default function DashboardPage() {
       ) : null}
 
       {stats.data ? <StatsRow stats={stats.data} /> : <div className="glass-card">Loading stats...</div>}
+
+      {collectReminders.data ? (
+        <AmountToCollect items={collectReminders.data} />
+      ) : (
+        <div className="glass-card">Loading collection reminders...</div>
+      )}
 
       {reminders.data ? <PaymentReminders reminders={reminders.data} /> : <div className="glass-card">Loading reminders...</div>}
 
