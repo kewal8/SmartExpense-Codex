@@ -1,6 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
 export function BottomSheet({
   open,
@@ -13,6 +14,8 @@ export function BottomSheet({
   title: string;
   children: React.ReactNode;
 }) {
+  useBodyScrollLock(open);
+
   return (
     <AnimatePresence>
       {open ? (
@@ -36,7 +39,7 @@ export function BottomSheet({
             onDragEnd={(_, info) => {
               if (info.offset.y > 120) onClose();
             }}
-            className="fixed bottom-0 left-0 right-0 z-50 rounded-t-[20px] border border-[var(--border-glass)] bg-[var(--bg-secondary)] p-5 shadow-modal"
+            className="fixed bottom-0 left-0 right-0 z-50 max-h-[90dvh] overflow-y-auto overscroll-contain rounded-t-[20px] border border-[var(--border-glass)] bg-[var(--bg-secondary)] p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] shadow-modal [@supports(-webkit-touch-callout:none)]:[-webkit-overflow-scrolling:touch]"
           >
             <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-[var(--text-tertiary)]/40" />
             <h2 className="mb-4 text-xl font-semibold text-[var(--text-primary)]">{title}</h2>

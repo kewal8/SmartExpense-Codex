@@ -66,7 +66,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--bg-primary)] p-4">
+    <main className="flex min-h-[100dvh] items-center justify-center bg-[var(--bg-primary)] p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-[calc(env(safe-area-inset-top)+1rem)]">
       <section className="glass-card w-full max-w-md">
         <h1 className="text-[28px] font-bold tracking-[-0.02em] text-[var(--text-primary)]">SmartExpense</h1>
         <p className="mt-1 text-sm text-[var(--text-secondary)]">Personal Smart Expense Manager</p>
