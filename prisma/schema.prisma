@@ -1,0 +1,211 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String             @id @default(cuid())
+  name              String?
+  email             String             @unique
+  emailVerified     DateTime?
+  image             String?
+  password          String?
+  currency          String             @default("INR")
+  monthlyBudget     Float?
+  darkMode          String             @default("auto")
+  emailReminders    Boolean            @default(false)
+  reminderFrequency String             @default("3_days_before")
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  accounts          Account[]
+  sessions          Session[]
+  expenses          Expense[]
+  emis              EMI[]
+  recurring         RecurringPayment[]
+  lends             Transaction[]      @relation("LendTransactions")
+  borrows           Transaction[]      @relation("BorrowTransactions")
+  persons           Person[]
+  expenseTypes      ExpenseType[]
+  emiTypes          EmiType[]
+  paidMarks         PaidMark[]
+  categoryBudgets   CategoryBudget[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model ExpenseType {
+  id             String          @id @default(cuid())
+  name           String
+  icon           String?
+  isDefault      Boolean         @default(false)
+  userId         String
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expenses       Expense[]
+  categoryBudget CategoryBudget?
+  createdAt      DateTime        @default(now())
+
+  @@unique([userId, name])
+}
+
+model Expense {
+  id        String      @id @default(cuid())
+  amount    Float
+  date      DateTime
+  typeId    String
+  type      ExpenseType @relation(fields: [typeId], references: [id])
+  note      String?
+  source    String?
+  sourceId  String?
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@index([userId, date])
+  @@index([userId, typeId])
+}
+
+model EMI {
+  id        String   @id @default(cuid())
+  name      String
+  amount    Float
+  emiType   String
+  dueDay    Int
+  startDate DateTime
+  endDate   DateTime
+  totalEmis Int
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paidMarks PaidMark[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model EmiType {
+  id        String   @id @default(cuid())
+  name      String
+  isDefault Boolean  @default(false)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, name])
+}
+
+model RecurringPayment {
+  id        String   @id @default(cuid())
+  name      String
+  type      String
+  amount    Float
+  dueDay    Int
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paidMarks PaidMark[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Person {
+  id        String        @id @default(cuid())
+  name      String
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lends     Transaction[] @relation("PersonLends")
+  borrows   Transaction[] @relation("PersonBorrows")
+  createdAt DateTime      @default(now())
+
+  @@unique([userId, name])
+}
+
+model Transaction {
+  id             String        @id @default(cuid())
+  type           String
+  amount         Float
+  dueDate        DateTime?
+  note           String?
+  settled        Boolean       @default(false)
+  settledAmount  Float         @default(0)
+  personId       String
+  person         Person        @relation("PersonLends", fields: [personId], references: [id], onDelete: Cascade)
+  borrowPerson   Person?       @relation("PersonBorrows", fields: [borrowPersonId], references: [id])
+  borrowPersonId String?
+  userId         String
+  lendUser       User          @relation("LendTransactions", fields: [userId], references: [id], onDelete: Cascade)
+  borrowUser     User?         @relation("BorrowTransactions", fields: [borrowUserId], references: [id])
+  borrowUserId   String?
+  parentId       String?
+  parent         Transaction?  @relation("Settlements", fields: [parentId], references: [id])
+  settlements    Transaction[] @relation("Settlements")
+  createdAt      DateTime      @default(now())
+
+  @@index([userId, personId])
+  @@index([userId, type])
+}
+
+model PaidMark {
+  id          String            @id @default(cuid())
+  itemType    String
+  itemId      String
+  month       Int
+  year        Int
+  paidDate    DateTime
+  note        String?
+  expenseId   String?
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emi         EMI?              @relation(fields: [emiId], references: [id])
+  emiId       String?
+  recurring   RecurringPayment? @relation(fields: [recurringId], references: [id])
+  recurringId String?
+  createdAt   DateTime          @default(now())
+
+  @@unique([userId, itemType, itemId, month, year])
+}
+
+model CategoryBudget {
+  id     String      @id @default(cuid())
+  amount Float
+  typeId String      @unique
+  type   ExpenseType @relation(fields: [typeId], references: [id], onDelete: Cascade)
+  userId String
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
