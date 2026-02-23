@@ -14,6 +14,9 @@ type ConfirmDialogProps = {
   cancelText?: string;
   variant?: 'danger' | 'primary';
   isLoading?: boolean;
+  confirmDisabled?: boolean;
+  loadingLabel?: string;
+  children?: React.ReactNode;
   onConfirm: () => void;
   onCancel: () => void;
 };
@@ -26,6 +29,9 @@ export function ConfirmDialog({
   cancelText = 'Cancel',
   variant = 'danger',
   isLoading = false,
+  confirmDisabled = false,
+  loadingLabel = 'Deleting...',
+  children,
   onConfirm,
   onCancel
 }: ConfirmDialogProps) {
@@ -54,6 +60,7 @@ export function ConfirmDialog({
           <Dialog.Description id={descriptionId} className="mt-2 text-sm text-[var(--text-secondary)]">
             {description}
           </Dialog.Description>
+          {children ? <div className="mt-4">{children}</div> : null}
 
           <div className="mt-5 flex justify-end gap-2">
             <Button variant="secondary" onClick={onCancel} autoFocus>
@@ -61,10 +68,11 @@ export function ConfirmDialog({
             </Button>
             <Button
               variant={variant === 'danger' ? 'danger' : 'primary'}
+              disabled={confirmDisabled}
               isLoading={isLoading}
-              loadingLabel="Deleting..."
+              loadingLabel={loadingLabel}
               onClick={() => {
-                if (isLoading) return;
+                if (isLoading || confirmDisabled) return;
                 onConfirm();
               }}
             >

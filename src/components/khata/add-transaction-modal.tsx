@@ -62,10 +62,11 @@ export function AddTransactionModal({
       }
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       qc.invalidateQueries({ queryKey: ['dashboard-stats'] });
       qc.invalidateQueries({ queryKey: ['persons'] });
       qc.invalidateQueries({ queryKey: ['transactions'] });
+      qc.invalidateQueries({ queryKey: ['person-khata', variables.personId] });
       showToast('Saved');
       onClose();
       setAmount('');
