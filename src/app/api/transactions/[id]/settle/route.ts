@@ -9,12 +9,13 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   if (!session?.user?.id) {
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
+  const userId = session.user.id;
 
   try {
     const input = parseBody(settlementSchema, await req.json());
 
     const original = await prisma.transaction.findFirst({
-      where: { id: params.id, userId: session.user.id }
+      where: { id: params.id, userId }
     });
 
     if (!original) {
@@ -33,7 +34,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     const result = await prisma.$transaction(async (tx) => {
       const settlement = await tx.transaction.create({
         data: {
-          userId: session.user.id,
+          userId,
           personId: original.personId,
           type: settlementType,
           amount: settleAmount,

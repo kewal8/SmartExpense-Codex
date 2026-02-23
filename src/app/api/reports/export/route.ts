@@ -6,9 +6,10 @@ export async function GET() {
   if (!session?.user?.id) {
     return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
+  const userId = session.user.id;
 
   const expenses = await prisma.expense.findMany({
-    where: { userId: session.user.id },
+    where: { userId },
     include: { type: true },
     orderBy: { date: 'desc' }
   });

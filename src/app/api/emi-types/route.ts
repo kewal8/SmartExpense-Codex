@@ -9,16 +9,17 @@ export async function GET() {
   if (!session?.user?.id) {
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
+  const userId = session.user.id;
 
   const types = await prisma.emiType.findMany({
-    where: { userId: session.user.id },
+    where: { userId },
     orderBy: [{ isDefault: 'desc' }, { name: 'asc' }]
   });
 
   const data = await Promise.all(
     types.map(async (type) => {
       const emiCount = await prisma.eMI.count({
-        where: { userId: session.user.id, emiType: { equals: type.name, mode: 'insensitive' } }
+        where: { userId, emiType: { equals: type.name, mode: 'insensitive' } }
       });
       return {
         ...type,
@@ -35,6 +36,7 @@ export async function POST(req: Request) {
   if (!session?.user?.id) {
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
+  const userId = session.user.id;
 
   try {
     const input = parseBody(expenseTypeSchema, await req.json());
@@ -46,7 +48,7 @@ export async function POST(req: Request) {
 
     const duplicate = await prisma.emiType.findFirst({
       where: {
-        userId: session.user.id,
+        userId,
         name: { equals: name, mode: 'insensitive' }
       }
     });
@@ -57,7 +59,7 @@ export async function POST(req: Request) {
 
     const data = await prisma.emiType.create({
       data: {
-        userId: session.user.id,
+        userId,
         name,
         isDefault: false
       }
@@ -75,6 +77,7 @@ export async function PUT(req: Request) {
   if (!session?.user?.id) {
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
+  const userId = session.user.id;
 
   try {
     const body = await req.json();
@@ -89,7 +92,7 @@ export async function PUT(req: Request) {
     }
 
     const exists = await prisma.emiType.findFirst({
-      where: { id, userId: session.user.id }
+      where: { id, userId }
     });
 
     if (!exists) {
@@ -98,7 +101,7 @@ export async function PUT(req: Request) {
 
     const duplicate = await prisma.emiType.findFirst({
       where: {
-        userId: session.user.id,
+        userId,
         id: { not: id },
         name: { equals: name, mode: 'insensitive' }
       }
@@ -116,7 +119,7 @@ export async function PUT(req: Request) {
 
       if (exists.name.toLowerCase() !== name.toLowerCase()) {
         await tx.eMI.updateMany({
-          where: { userId: session.user.id, emiType: { equals: exists.name, mode: 'insensitive' } },
+          where: { userId, emiType: { equals: exists.name, mode: 'insensitive' } },
           data: { emiType: name }
         });
       }
@@ -136,6 +139,7 @@ export async function DELETE(req: Request) {
   if (!session?.user?.id) {
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
+  const userId = session.user.id;
 
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
@@ -144,7 +148,7 @@ export async function DELETE(req: Request) {
   }
 
   const type = await prisma.emiType.findFirst({
-    where: { id, userId: session.user.id }
+    where: { id, userId }
   });
 
   if (!type) {
@@ -152,7 +156,7 @@ export async function DELETE(req: Request) {
   }
 
   const inUse = await prisma.eMI.count({
-    where: { userId: session.user.id, emiType: { equals: type.name, mode: 'insensitive' } }
+    where: { userId, emiType: { equals: type.name, mode: 'insensitive' } }
   });
 
   if (inUse > 0) {

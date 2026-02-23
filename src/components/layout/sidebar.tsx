@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import type { Route } from 'next';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Receipt, CalendarClock, Repeat, HandCoins, ChartNoAxesCombined, Settings } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { cn } from '@/lib/utils';
 
-const nav = [
+const nav: Array<{ href: Route; label: string; icon: React.ComponentType<{ className?: string }> }> = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/expenses', label: 'Expenses', icon: Receipt },
   { href: '/emis', label: 'EMIs', icon: CalendarClock },

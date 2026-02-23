@@ -8,6 +8,7 @@ export async function GET() {
   if (!session?.user?.id) {
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
+  const userId = session.user.id;
 
   const end = endOfMonth(new Date());
   const start = startOfMonth(subMonths(end, 5));
@@ -17,7 +18,7 @@ export async function GET() {
     months.map(async (monthStart) => {
       const monthEnd = endOfMonth(monthStart);
       const total = await prisma.expense.aggregate({
-        where: { userId: session.user.id, date: { gte: monthStart, lte: monthEnd } },
+        where: { userId, date: { gte: monthStart, lte: monthEnd } },
         _sum: { amount: true }
       });
       return { month: format(monthStart, 'MMM yy'), total: total._sum.amount ?? 0 };

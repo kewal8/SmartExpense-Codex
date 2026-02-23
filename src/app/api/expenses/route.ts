@@ -56,6 +56,8 @@ export async function GET(req: Request) {
       page: searchParams.get('page') ?? 1,
       limit: searchParams.get('limit') ?? 20
     });
+    const pageNumber = page.page ?? 1;
+    const pageLimit = page.limit ?? 20;
 
     const where: Prisma.ExpenseWhereInput = {
       userId: session.user.id,
@@ -97,8 +99,8 @@ export async function GET(req: Request) {
         where,
         include: { type: true },
         orderBy,
-        skip: (page.page - 1) * page.limit,
-        take: page.limit
+        skip: (pageNumber - 1) * pageLimit,
+        take: pageLimit
       }),
       prisma.expense.count({ where })
     ]);
@@ -108,10 +110,10 @@ export async function GET(req: Request) {
       data: {
         items,
         pagination: {
-          page: page.page,
-          limit: page.limit,
+          page: pageNumber,
+          limit: pageLimit,
           total,
-          totalPages: Math.ceil(total / page.limit)
+          totalPages: Math.ceil(total / pageLimit)
         }
       }
     });

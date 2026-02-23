@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import type { Route } from 'next';
 import { ChevronRight, CreditCard, Palette, Bell, UserCircle2, Tags, Users, Wallet, LogOut } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { GlassCard } from '@/components/ui/glass-card';
 
-function SettingsRow({ href, label, icon: Icon }: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }) {
+function SettingsRow({ href, label, icon: Icon }: { href: Route; label: string; icon: React.ComponentType<{ className?: string }> }) {
   return (
     <Link
       href={href}

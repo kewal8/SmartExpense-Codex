@@ -33,6 +33,7 @@ export async function POST(req: Request) {
   if (!session?.user?.id) {
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
+  const userId = session.user.id;
 
   try {
     const input = parseBody(paidMarkSchema, await req.json());
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
     const existing = await prisma.paidMark.findUnique({
       where: {
         userId_itemType_itemId_month_year: {
-          userId: session.user.id,
+          userId,
           itemType: input.itemType,
           itemId: input.itemId,
           month: input.month,
@@ -60,24 +61,24 @@ export async function POST(req: Request) {
       let preferredType = 'Other';
 
       if (input.itemType === 'emi') {
-        const emi = await tx.eMI.findFirst({ where: { id: input.itemId, userId: session.user.id } });
+        const emi = await tx.eMI.findFirst({ where: { id: input.itemId, userId } });
         if (!emi) throw new Error('EMI not found');
         amount = emi.amount;
         source = 'emi';
         preferredType = emi.emiType;
       } else {
-        const recurring = await tx.recurringPayment.findFirst({ where: { id: input.itemId, userId: session.user.id } });
+        const recurring = await tx.recurringPayment.findFirst({ where: { id: input.itemId, userId } });
         if (!recurring) throw new Error('Recurring payment not found');
         amount = recurring.amount;
         source = 'recurring';
         preferredType = recurring.type;
       }
 
-      const typeId = await getExpenseTypeId(session.user.id, preferredType);
+      const typeId = await getExpenseTypeId(userId, preferredType);
 
       const expense = await tx.expense.create({
         data: {
-          userId: session.user.id,
+          userId,
           amount,
           date: input.paidDate,
           typeId,
@@ -90,7 +91,7 @@ export async function POST(req: Request) {
       const paidMark = await tx.paidMark.create({
         data: {
           ...input,
-          userId: session.user.id,
+          userId,
           expenseId: expense.id,
           emiId: input.itemType === 'emi' ? input.itemId : undefined,
           recurringId: input.itemType === 'recurring' ? input.itemId : undefined
@@ -112,6 +113,7 @@ export async function GET(req: Request) {
   if (!session?.user?.id) {
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
+  const userId = session.user.id;
 
   const { searchParams } = new URL(req.url);
   const month = Number(searchParams.get('month'));
@@ -119,7 +121,7 @@ export async function GET(req: Request) {
 
   const marks = await prisma.paidMark.findMany({
     where: {
-      userId: session.user.id,
+      userId,
       month: Number.isNaN(month) ? undefined : month,
       year: Number.isNaN(year) ? undefined : year
     },

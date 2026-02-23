@@ -7,6 +7,7 @@ export async function GET(req: Request) {
   if (!session?.user?.id) {
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
+  const userId = session.user.id;
 
   const { searchParams } = new URL(req.url);
   const month = Number(searchParams.get('month') ?? new Date().getMonth());
@@ -15,7 +16,7 @@ export async function GET(req: Request) {
   const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
 
   const expenses = await prisma.expense.findMany({
-    where: { userId: session.user.id, date: { gte: start, lte: end } },
+    where: { userId, date: { gte: start, lte: end } },
     include: { type: true }
   });
 
