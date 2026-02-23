@@ -1,11 +1,10 @@
 'use client';
 
-import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { useQuery } from '@tanstack/react-query';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
+import { PageCrumbHeader } from '@/components/layout/page-crumb-header';
 
 export default function SettingsProfilePage() {
   const settings = useQuery({
@@ -19,10 +18,15 @@ export default function SettingsProfilePage() {
 
   return (
     <div className="space-y-4">
-      <Link href="/settings" className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
-        <ChevronLeft className="h-4 w-4" /> Settings
-      </Link>
-      <h1 className="text-[28px] font-bold tracking-[-0.02em]">Profile</h1>
+      <PageCrumbHeader
+        title="Profile"
+        parentLabel="Settings"
+        parentHref="/settings"
+        crumbs={[
+          { label: 'Settings', href: '/settings' },
+          { label: 'Profile' }
+        ]}
+      />
 
       <GlassCard className="p-4">
         <h2 className="text-xl font-semibold">Account</h2>

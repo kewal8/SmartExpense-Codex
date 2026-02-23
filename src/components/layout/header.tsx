@@ -40,7 +40,7 @@ export function Header() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-20 mb-6 flex h-16 items-center justify-between rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-glass)] px-4 backdrop-blur-xl">
+    <header className="sticky top-0 z-20 mb-6 hidden h-16 items-center justify-between rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-glass)] px-4 backdrop-blur-xl lg:flex">
       <div className={`w-full max-w-sm ${hideSearchOnMobile ? 'hidden md:block' : ''}`}>
         <Input placeholder="Search..." aria-label="Search" className="h-10" />
       </div>

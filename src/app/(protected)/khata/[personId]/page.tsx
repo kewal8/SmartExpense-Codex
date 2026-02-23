@@ -8,6 +8,7 @@ import { AddTransactionModal } from '@/components/khata/add-transaction-modal';
 import { SettlementModal } from '@/components/khata/settlement-modal';
 import { useToast } from '@/components/ui/toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageCrumbHeader } from '@/components/layout/page-crumb-header';
 
 type Transaction = {
   id: string;
@@ -69,15 +70,23 @@ export default function PersonKhataPage({ params }: { params: { personId: string
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-[28px] font-bold tracking-[-0.02em]">Person Khata</h1>
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => setShowLend(true)}>
-            Lend
-          </Button>
-          <Button onClick={() => setShowBorrow(true)}>Borrow</Button>
-        </div>
-      </div>
+      <PageCrumbHeader
+        title="Person Khata"
+        parentLabel="Khata"
+        parentHref="/khata"
+        crumbs={[
+          { label: 'Khata', href: '/khata' },
+          { label: 'Person Khata' }
+        ]}
+        rightSlot={
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setShowLend(true)}>
+              Lend
+            </Button>
+            <Button onClick={() => setShowBorrow(true)}>Borrow</Button>
+          </div>
+        }
+      />
       {tx.isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, index) => (

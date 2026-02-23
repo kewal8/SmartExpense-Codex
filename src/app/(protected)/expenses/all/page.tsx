@@ -12,6 +12,7 @@ import { useToast } from '@/components/ui/toast';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SearchX } from 'lucide-react';
+import { PageCrumbHeader } from '@/components/layout/page-crumb-header';
 
 async function getTypes() {
   const res = await fetch('/api/expense-types');
@@ -71,15 +72,23 @@ export default function ExpensesPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-[28px] font-bold tracking-[-0.02em]">All Expenses</h1>
-        <div className="flex items-center gap-2">
-          <a href="/api/reports/export">
-            <Button variant="secondary">Export CSV</Button>
-          </a>
-          <Button onClick={() => setShowAdd(true)}>Add Expense</Button>
-        </div>
-      </div>
+      <PageCrumbHeader
+        title="All Expenses"
+        parentLabel="Expenses"
+        parentHref="/expenses"
+        crumbs={[
+          { label: 'Expenses', href: '/expenses' },
+          { label: 'All Expenses' }
+        ]}
+        rightSlot={
+          <div className="flex items-center gap-2">
+            <a href="/api/reports/export">
+              <Button variant="secondary">Export CSV</Button>
+            </a>
+            <Button onClick={() => setShowAdd(true)}>Add Expense</Button>
+          </div>
+        }
+      />
 
       <ExpenseFilters
         search={search}
