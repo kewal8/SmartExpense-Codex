@@ -1,8 +1,9 @@
 import Link from 'next/link';
+import type { Route } from 'next';
 
 type Crumb = {
   label: string;
-  href?: string;
+  href?: Route;
 };
 
 export function PageCrumbHeader({
@@ -14,7 +15,7 @@ export function PageCrumbHeader({
 }: {
   title: string;
   parentLabel: string;
-  parentHref: string;
+  parentHref: Route;
   crumbs?: Crumb[];
   rightSlot?: React.ReactNode;
 }) {
