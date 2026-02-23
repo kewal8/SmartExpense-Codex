@@ -3,6 +3,11 @@
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 
+type ExpenseTypeOption = {
+  id: string;
+  name: string;
+};
+
 export function ExpenseFilters({
   search,
   setSearch,
@@ -18,7 +23,7 @@ export function ExpenseFilters({
   setSort: (v: string) => void;
   typeId: string;
   setTypeId: (v: string) => void;
-  types: any[];
+  types: ExpenseTypeOption[];
 }) {
   return (
     <div className="sticky top-16 z-10 mb-4 grid grid-cols-1 gap-2 rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-glass)] p-3 backdrop-blur-xl md:grid-cols-3">

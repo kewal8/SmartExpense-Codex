@@ -1,7 +1,16 @@
 import { formatCurrency } from '@/lib/utils';
 import { StatCard } from '@/components/ui/stat-card';
 
-export function StatsRow({ stats }: { stats: any }) {
+type DashboardStats = {
+  thisMonthSpend: number;
+  monthlyBudget: number | null;
+  deltaPercent: number;
+  toCollect: number;
+  toPay: number;
+  fixedOutflow: number;
+};
+
+export function StatsRow({ stats }: { stats: DashboardStats }) {
   return (
     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
       <StatCard title="This Month Spend" value={formatCurrency(stats.thisMonthSpend)} meta={`${stats.deltaPercent.toFixed(1)}% vs last month`} />

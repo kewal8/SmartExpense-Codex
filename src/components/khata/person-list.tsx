@@ -1,7 +1,13 @@
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
 
-export function PersonList({ persons }: { persons: any[] }) {
+type Person = {
+  id: string;
+  name: string;
+  netBalance: number;
+};
+
+export function PersonList({ persons }: { persons: Person[] }) {
   return (
     <div className="space-y-2">
       {persons.map((person) => (
