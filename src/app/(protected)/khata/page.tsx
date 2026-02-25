@@ -14,7 +14,7 @@ type PersonsResponse = { data: Person[]; summary?: KhataSummary };
 export default function KhataPage() {
   const router = useRouter();
   const persons = useQuery<PersonsResponse>({
-    queryKey: ['persons'],
+    queryKey: ['persons', 'khata-summary'],
     queryFn: async () => {
       const res = await fetch('/api/persons');
       if (!res.ok) throw new Error('Failed to fetch persons');

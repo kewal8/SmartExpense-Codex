@@ -8,10 +8,23 @@ import { ToastProvider } from '@/components/ui/toast';
 
 function MobileGestureGuards() {
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
-    const isMobile = window.matchMedia('(max-width: 767px)').matches;
-    if (!isStandalone && !isMobile) return;
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
+    let isStandalone = false;
+    let isMobile = false;
+    let isTouchDevice = false;
+
+    try {
+      isStandalone =
+        window.matchMedia?.('(display-mode: standalone)')?.matches === true ||
+        ((window.navigator as Navigator & { standalone?: boolean }).standalone ?? false) === true;
+      isMobile = window.matchMedia?.('(max-width: 767px)')?.matches === true;
+      isTouchDevice = 'ontouchstart' in window || (window.navigator.maxTouchPoints ?? 0) > 0;
+    } catch {
+      return;
+    }
+
+    if (!isTouchDevice || (!isStandalone && !isMobile)) return;
 
     const preventGesture = (event: Event) => event.preventDefault();
     const preventMultiTouch = (event: TouchEvent) => {
@@ -35,7 +48,19 @@ function MobileGestureGuards() {
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 30_000,
+            gcTime: 5 * 60_000,
+            refetchOnWindowFocus: false,
+            refetchOnReconnect: false
+          }
+        }
+      })
+  );
 
   return (
     <SessionProvider>

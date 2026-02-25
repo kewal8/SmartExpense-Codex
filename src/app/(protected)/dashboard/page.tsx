@@ -77,13 +77,14 @@ export default function DashboardPage() {
   const emis = useQuery({ queryKey: ['emis'], queryFn: getEmis });
   const recurring = useQuery({ queryKey: ['recurring'], queryFn: getRecurring });
 
+  const personOptions = Array.isArray(persons.data) ? persons.data : [];
+
   const isFirstTimeUser =
     Array.isArray(expenses.data) &&
-    Array.isArray(persons.data) &&
     Array.isArray(emis.data) &&
     Array.isArray(recurring.data) &&
     expenses.data.length === 0 &&
-    persons.data.length === 0 &&
+    personOptions.length === 0 &&
     emis.data.length === 0 &&
     recurring.data.length === 0;
 
@@ -140,13 +141,13 @@ export default function DashboardPage() {
         open={showLend}
         onClose={() => setShowLend(false)}
         type="lend"
-        persons={(persons.data ?? []).map((p) => ({ id: p.id, name: p.name }))}
+        persons={personOptions.map((p) => ({ id: p.id, name: p.name }))}
       />
       <AddTransactionModal
         open={showBorrow}
         onClose={() => setShowBorrow(false)}
         type="borrow"
-        persons={(persons.data ?? []).map((p) => ({ id: p.id, name: p.name }))}
+        persons={personOptions.map((p) => ({ id: p.id, name: p.name }))}
       />
     </div>
   );
