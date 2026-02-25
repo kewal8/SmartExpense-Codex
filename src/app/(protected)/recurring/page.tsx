@@ -18,6 +18,9 @@ type RecurringItem = {
   type: string;
   amount: number;
   dueDay: number;
+  nextDueAt: string;
+  nextDueInDays: number;
+  showMarkPaid: boolean;
 };
 
 export default function RecurringPage() {

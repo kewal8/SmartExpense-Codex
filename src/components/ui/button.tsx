@@ -26,7 +26,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       disabled={disabled || isLoading}
       aria-busy={isLoading || undefined}
       className={cn(
-        'relative h-12 rounded-xl px-4 text-[15px] font-semibold transition-all duration-200 ease-out disabled:opacity-50',
+        'tap-feedback relative h-12 rounded-xl px-4 text-[15px] font-semibold transition-all duration-200 ease-out disabled:opacity-50',
         variantMap[variant],
         className
       )}

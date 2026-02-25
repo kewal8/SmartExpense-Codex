@@ -7,8 +7,11 @@ import { jsonResponse } from '@/lib/utils';
 import { requireAuth } from '@/lib/server-auth';
 
 export async function POST(req: Request) {
+  const lifecycleStart = performance.now();
+  const timingLabel = `[perf][POST /api/expenses]`;
   const session = await requireAuth();
   if (!session?.user?.id) {
+    console.log(`${timingLabel} unauthorized total=${(performance.now() - lifecycleStart).toFixed(1)}ms`);
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
 
@@ -16,6 +19,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const input = parseBody(expenseSchema, body);
 
+    const dbInsertStart = performance.now();
     const expense = await prisma.expense.create({
       data: {
         userId: session.user.id,
@@ -26,17 +30,25 @@ export async function POST(req: Request) {
       },
       include: { type: true }
     });
+    const dbInsertMs = performance.now() - dbInsertStart;
+    const totalMs = performance.now() - lifecycleStart;
+    console.log(`${timingLabel} dbInsert=${dbInsertMs.toFixed(1)}ms total=${totalMs.toFixed(1)}ms`);
 
     return jsonResponse({ success: true, data: expense }, 201);
   } catch (error) {
+    const totalMs = performance.now() - lifecycleStart;
+    console.log(`${timingLabel} error total=${totalMs.toFixed(1)}ms`);
     const message = error instanceof Error ? error.message : 'Failed to create expense';
     return jsonResponse({ success: false, error: message }, 400);
   }
 }
 
 export async function GET(req: Request) {
+  const lifecycleStart = performance.now();
+  const timingLabel = `[perf][GET /api/expenses]`;
   const session = await requireAuth();
   if (!session?.user?.id) {
+    console.log(`${timingLabel} unauthorized total=${(performance.now() - lifecycleStart).toFixed(1)}ms`);
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
 
@@ -94,6 +106,7 @@ export async function GET(req: Request) {
             ? { amount: 'asc' as const }
             : { date: 'desc' as const };
 
+    const dbSelectStart = performance.now();
     const [items, total] = await Promise.all([
       prisma.expense.findMany({
         where,
@@ -104,8 +117,9 @@ export async function GET(req: Request) {
       }),
       prisma.expense.count({ where })
     ]);
+    const dbSelectMs = performance.now() - dbSelectStart;
 
-    return jsonResponse({
+    const payload = {
       success: true,
       data: {
         items,
@@ -116,8 +130,23 @@ export async function GET(req: Request) {
           totalPages: Math.ceil(total / pageLimit)
         }
       }
-    });
+    };
+    const payloadBytes = Buffer.byteLength(JSON.stringify(payload), 'utf8');
+    const totalMs = performance.now() - lifecycleStart;
+
+    // Perf triage notes:
+    // 1) router.refresh overuse: if one POST triggers many GET logs for this route in quick succession, client refresh/invalidation is too broad.
+    // 2) N+1 queries: if dbSelectMs scales linearly with item count or query logs show repeated per-row lookups, consolidate with include/join.
+    // 3) Overfetching: if payloadBytes is large relative to UI needs, trim selected fields and enforce tighter pagination.
+    // 4) Missing indexes: if dbSelectMs remains high on filtered/sorted queries, run EXPLAIN ANALYZE and add composite indexes for WHERE/ORDER BY columns.
+    console.log(
+      `${timingLabel} dbSelect=${dbSelectMs.toFixed(1)}ms payload=${payloadBytes}B total=${totalMs.toFixed(1)}ms`
+    );
+
+    return jsonResponse(payload);
   } catch (error) {
+    const totalMs = performance.now() - lifecycleStart;
+    console.log(`${timingLabel} error total=${totalMs.toFixed(1)}ms`);
     const message = error instanceof Error ? error.message : 'Failed to fetch expenses';
     return jsonResponse({ success: false, error: message }, 400);
   }

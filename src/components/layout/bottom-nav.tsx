@@ -26,7 +26,7 @@ export function BottomNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              'flex h-12 flex-col items-center justify-center rounded-xl text-[11px] font-medium',
+              'tap-feedback-soft flex h-12 flex-col items-center justify-center rounded-xl text-[11px] font-medium',
               active ? 'text-[var(--accent-blue)]' : 'text-[var(--text-secondary)]'
             )}
           >

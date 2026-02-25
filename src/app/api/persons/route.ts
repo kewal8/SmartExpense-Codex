@@ -27,15 +27,26 @@ export async function GET() {
   if (!session?.user?.id) {
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
+  const userId = session.user.id;
 
-  const persons = await prisma.person.findMany({
-    where: { userId: session.user.id },
-    include: {
-      lends: { where: { userId: session.user.id } },
-      borrows: { where: { userId: session.user.id } }
-    },
-    orderBy: { name: 'asc' }
-  });
+  const [persons, lendAgg, borrowAgg] = await Promise.all([
+    prisma.person.findMany({
+      where: { userId },
+      include: {
+        lends: { where: { userId } },
+        borrows: { where: { userId } }
+      },
+      orderBy: { name: 'asc' }
+    }),
+    prisma.transaction.aggregate({
+      where: { userId, type: 'lend', settled: false },
+      _sum: { amount: true, settledAmount: true }
+    }),
+    prisma.transaction.aggregate({
+      where: { userId, type: 'borrow', settled: false },
+      _sum: { amount: true, settledAmount: true }
+    })
+  ]);
 
   const enriched = persons.map((person) => {
     const lendUnsettled = person.lends
@@ -51,5 +62,16 @@ export async function GET() {
     };
   });
 
-  return jsonResponse({ success: true, data: enriched });
+  const owed = (lendAgg._sum.amount ?? 0) - (lendAgg._sum.settledAmount ?? 0);
+  const owe = (borrowAgg._sum.amount ?? 0) - (borrowAgg._sum.settledAmount ?? 0);
+
+  return Response.json({
+    success: true,
+    data: enriched,
+    summary: {
+      owed,
+      owe,
+      net: owed - owe
+    }
+  });
 }

@@ -48,6 +48,15 @@ body {
   -webkit-text-size-adjust: 100%;
 }
 
+@layer base {
+  button,
+  [role='button'],
+  a[href] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 @supports (-webkit-touch-callout: none) {
   body {
     min-height: -webkit-fill-available;
@@ -86,4 +95,14 @@ body {
 
 .skip-link:focus {
   top: 16px;
+}
+
+@layer utilities {
+  .tap-feedback {
+    @apply cursor-pointer transition-transform duration-150 ease-out active:scale-95 active:brightness-95;
+  }
+
+  .tap-feedback-soft {
+    @apply cursor-pointer transition-transform duration-100 ease-out active:scale-[0.98] active:opacity-90;
+  }
 }

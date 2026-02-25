@@ -10,6 +10,9 @@ type RecurringItem = {
   type: string;
   amount: number;
   dueDay: number;
+  nextDueAt: string;
+  nextDueInDays: number;
+  showMarkPaid: boolean;
 };
 
 export function RecurringList({
@@ -67,22 +70,26 @@ export function RecurringList({
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => onMarkPaid(item.id)}
-                aria-label={`Mark recurring payment ${item.name} as paid`}
-                className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[rgba(52,199,89,0.25)] bg-[rgba(52,199,89,0.12)] px-3 py-2 text-sm font-medium text-[var(--accent-green)] transition-colors hover:bg-[rgba(52,199,89,0.18)]"
-              >
-                <Check className="h-4 w-4" />
-                Mark Paid
-              </button>
+              {item.showMarkPaid ? (
+                <button
+                  type="button"
+                  onClick={() => onMarkPaid(item.id)}
+                  aria-label={`Mark recurring payment ${item.name} as paid`}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[rgba(52,199,89,0.25)] bg-[rgba(52,199,89,0.12)] px-3 py-2 text-sm font-medium text-[var(--accent-green)] transition-colors hover:bg-[rgba(52,199,89,0.18)]"
+                >
+                  <Check className="h-4 w-4" />
+                  Mark Paid
+                </button>
+              ) : (
+                <p className="text-xs text-[var(--text-secondary)]">Paid. Next due in {item.nextDueInDays} days</p>
+              )}
                 <div data-action-menu-root className="relative">
                 <button
                   type="button"
                   aria-label="More actions"
                   aria-haspopup="menu"
                   aria-expanded={openMenuId === item.id}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-[var(--text-tertiary)] transition-colors hover:bg-[var(--bg-glass-hover)] hover:text-[var(--text-secondary)]"
+                  className="tap-feedback-soft inline-flex h-11 w-11 items-center justify-center rounded-xl text-[var(--text-tertiary)] transition-colors hover:bg-[var(--bg-glass-hover)] hover:text-[var(--text-secondary)]"
                   onClick={() => setOpenMenuId((current) => (current === item.id ? null : item.id))}
                 >
                   <MoreVertical className="h-5 w-5" />

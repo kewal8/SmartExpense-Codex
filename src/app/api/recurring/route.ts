@@ -3,6 +3,13 @@ import { recurringSchema } from '@/lib/validations';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/server-auth';
 import { jsonResponse } from '@/lib/utils';
+import { addMonths, differenceInCalendarDays, startOfDay } from 'date-fns';
+
+function cycleDate(year: number, month: number, dueDay: number) {
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  const safeDay = Math.min(Math.max(dueDay, 1), lastDay);
+  return new Date(year, month, safeDay);
+}
 
 export async function POST(req: Request) {
   const session = await requireAuth();
@@ -34,5 +41,35 @@ export async function GET() {
     orderBy: { createdAt: 'desc' }
   });
 
-  return jsonResponse({ success: true, data: recurring });
+  const today = startOfDay(new Date());
+
+  const data = recurring.map((item) => {
+    const latestPaid = [...item.paidMarks]
+      .filter((mark) => mark.itemType === 'recurring')
+      .sort((a, b) => b.paidDate.getTime() - a.paidDate.getTime())[0];
+
+    let nextDueAt: Date;
+    if (latestPaid) {
+      const paidCycle = cycleDate(latestPaid.year, latestPaid.month, item.dueDay);
+      nextDueAt = addMonths(paidCycle, 1);
+    } else {
+      const thisMonthDue = cycleDate(today.getFullYear(), today.getMonth(), item.dueDay);
+      nextDueAt = thisMonthDue >= today ? thisMonthDue : addMonths(thisMonthDue, 1);
+    }
+
+    const nextDueInDays = differenceInCalendarDays(startOfDay(nextDueAt), today);
+
+    return {
+      id: item.id,
+      name: item.name,
+      type: item.type,
+      amount: item.amount,
+      dueDay: item.dueDay,
+      nextDueAt,
+      nextDueInDays,
+      showMarkPaid: nextDueInDays <= 7
+    };
+  });
+
+  return jsonResponse({ success: true, data });
 }

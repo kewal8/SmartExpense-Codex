@@ -11,21 +11,21 @@ export function MobileTopBar() {
         <button
           type="button"
           aria-label="Search"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-xl p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]"
+          className="tap-feedback-soft inline-flex h-11 w-11 items-center justify-center rounded-xl p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]"
         >
           <Search className="h-5 w-5" />
         </button>
         <button
           type="button"
           aria-label="Notifications"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-xl p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]"
+          className="tap-feedback-soft inline-flex h-11 w-11 items-center justify-center rounded-xl p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]"
         >
           <Bell className="h-5 w-5" />
         </button>
         <Link
           href="/settings"
           aria-label="Open settings"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-xl p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]"
+          className="tap-feedback-soft inline-flex h-11 w-11 items-center justify-center rounded-xl p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]"
         >
           <UserCircle2 className="h-5 w-5" />
         </Link>

@@ -45,13 +45,13 @@ export function Header() {
         <Input placeholder="Search..." aria-label="Search" className="h-10" />
       </div>
       <div className="ml-4 flex items-center gap-2">
-        <button aria-label="Notifications" className="relative rounded-xl p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]">
+        <button aria-label="Notifications" className="tap-feedback-soft relative rounded-xl p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]">
           <Bell className="h-5 w-5" />
           <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-[var(--accent-red)]" />
         </button>
         <button
           aria-label="Toggle theme"
-          className="rounded-xl p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]"
+          className="tap-feedback-soft rounded-xl p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]"
           onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
         >
           {resolvedTheme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -63,7 +63,7 @@ export function Header() {
             aria-label="Profile menu"
             aria-haspopup="menu"
             aria-expanded={menuOpen}
-            className="hidden h-9 w-9 rounded-full bg-[rgba(0,122,255,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-glass)] md:inline-flex"
+            className="tap-feedback-soft hidden h-9 w-9 rounded-full bg-[rgba(0,122,255,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-glass)] md:inline-flex"
             onClick={() => setMenuOpen((open) => !open)}
           />
           <div className="h-9 w-9 rounded-full bg-[rgba(0,122,255,0.15)] md:hidden" />
@@ -77,7 +77,7 @@ export function Header() {
               <Link
                 href="/settings"
                 role="menuitem"
-                className="block rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-glass-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]"
+                className="tap-feedback-soft block rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-glass-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]"
                 onClick={() => setMenuOpen(false)}
               >
                 Settings
@@ -85,7 +85,7 @@ export function Header() {
               <button
                 type="button"
                 role="menuitem"
-                className="block w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-glass-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]"
+                className="tap-feedback-soft block w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-glass-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]"
                 onClick={() => {
                   setMenuOpen(false);
                   signOut({ callbackUrl: '/login' });

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Lock, Trash2, Users } from 'lucide-react';
+import { Lock, Pencil, Trash2, Users } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Input } from '@/components/ui/input';
@@ -33,6 +33,8 @@ export function PeopleManager({
   const isMobile = useMediaQuery('(max-width: 767px)');
   const [internalCreateOpen, setInternalCreateOpen] = useState(false);
   const [personName, setPersonName] = useState('');
+  const [editingPerson, setEditingPerson] = useState<Person | null>(null);
+  const [editPersonName, setEditPersonName] = useState('');
   const [deletingPersonId, setDeletingPersonId] = useState<string | null>(null);
   const [confirmPersonId, setConfirmPersonId] = useState<string | null>(null);
   const isCreateOpen = createOpen ?? internalCreateOpen;
@@ -85,6 +87,50 @@ export function PeopleManager({
     onError: (error) => showToast(error instanceof Error ? error.message : 'Failed to delete person', 'error')
   });
 
+  const updatePerson = useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      const res = await fetch(`/api/persons/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim() })
+      });
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.error ?? 'Failed to update person');
+      return payload.data as Person;
+    },
+    onSuccess: (updated) => {
+      qc.setQueryData(['persons'], (previous: unknown) => {
+        if (Array.isArray(previous)) {
+          return previous.map((person) => {
+            if (typeof person !== 'object' || person === null || !('id' in person)) return person;
+            const current = person as { id?: string; name?: string };
+            return current.id === updated.id ? { ...current, name: updated.name } : person;
+          });
+        }
+        if (
+          typeof previous === 'object' &&
+          previous !== null &&
+          'data' in previous &&
+          Array.isArray((previous as { data: unknown[] }).data)
+        ) {
+          const current = previous as { data: Array<{ id?: string; name?: string }>; summary?: unknown };
+          return {
+            ...current,
+            data: current.data.map((person) =>
+              person.id === updated.id ? { ...person, name: updated.name } : person
+            )
+          };
+        }
+        return previous;
+      });
+      qc.invalidateQueries({ queryKey: ['persons'] });
+      showToast('Saved');
+      setEditingPerson(null);
+      setEditPersonName('');
+    },
+    onError: (error) => showToast(error instanceof Error ? error.message : 'Failed to update person', 'error')
+  });
+
   return (
     <>
       <GlassCard className="p-4">
@@ -121,7 +167,19 @@ export function PeopleManager({
                     <p className="text-sm font-medium text-[var(--text-primary)]">{person.name}</p>
                     <p className="text-xs text-[var(--text-secondary)]">{txCount > 0 ? `${txCount} transaction(s)` : 'No transactions'}</p>
                   </div>
-                  <div className="group relative">
+                  <div className="group relative flex items-center">
+                    <button
+                      type="button"
+                      aria-label={`Edit ${person.name}`}
+                      className="mr-1 rounded-lg p-2 text-[var(--accent-blue)] transition-colors hover:bg-[rgba(0,122,255,0.1)]"
+                      onClick={() => {
+                        if (rowLoading) return;
+                        setEditingPerson(person);
+                        setEditPersonName(person.name);
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
                     <button
                       type="button"
                       aria-label={`Delete ${person.name}`}
@@ -206,6 +264,65 @@ export function PeopleManager({
             </Button>
             <Button type="submit" disabled={!personName.trim()} isLoading={addPerson.isPending} loadingLabel="Adding...">
               Add Person
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        open={Boolean(editingPerson)}
+        onOpenChange={(value) => {
+          if (!value && !updatePerson.isPending) {
+            setEditingPerson(null);
+            setEditPersonName('');
+          }
+        }}
+        title="Edit Person"
+      >
+        <form
+          className="space-y-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!editingPerson || updatePerson.isPending) return;
+            const nextName = editPersonName.trim();
+            if (!nextName || nextName === editingPerson.name) return;
+            updatePerson.mutate({ id: editingPerson.id, name: nextName });
+          }}
+        >
+          <div>
+            <label htmlFor="edit-person-name" className="mb-1 block text-sm text-[var(--text-secondary)]">
+              Person Name
+            </label>
+            <Input
+              id="edit-person-name"
+              value={editPersonName}
+              onChange={(e) => setEditPersonName(e.target.value)}
+              placeholder="Enter person name"
+              aria-label="Edit person name"
+              autoFocus
+              required
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={() => {
+                if (updatePerson.isPending) return;
+                setEditingPerson(null);
+                setEditPersonName('');
+              }}
+              disabled={updatePerson.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={!editPersonName.trim() || editPersonName.trim() === (editingPerson?.name ?? '')}
+              isLoading={updatePerson.isPending}
+              loadingLabel="Saving..."
+            >
+              Save Changes
             </Button>
           </div>
         </form>

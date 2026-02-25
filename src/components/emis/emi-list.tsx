@@ -100,7 +100,7 @@ export function EMIList({
                     aria-label="More actions"
                     aria-haspopup="menu"
                     aria-expanded={openMenuId === emi.id}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-[var(--text-tertiary)] transition-colors hover:bg-[var(--bg-glass-hover)] hover:text-[var(--text-secondary)]"
+                    className="tap-feedback-soft inline-flex h-11 w-11 items-center justify-center rounded-xl text-[var(--text-tertiary)] transition-colors hover:bg-[var(--bg-glass-hover)] hover:text-[var(--text-secondary)]"
                     onClick={() => setOpenMenuId((current) => (current === emi.id ? null : emi.id))}
                   >
                     <MoreVertical className="h-5 w-5" />

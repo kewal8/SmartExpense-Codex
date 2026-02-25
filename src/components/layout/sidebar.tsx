@@ -34,7 +34,7 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex h-12 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors',
+                'tap-feedback-soft flex h-12 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors',
                 active
                   ? 'bg-[rgba(0,122,255,0.1)] text-[var(--accent-blue)]'
                   : 'text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]'
