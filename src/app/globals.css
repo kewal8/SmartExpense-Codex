@@ -105,4 +105,8 @@ body {
   .tap-feedback-soft {
     @apply cursor-pointer transition-transform duration-100 ease-out active:scale-[0.98] active:opacity-90;
   }
+
+  .tap-nav {
+    @apply cursor-pointer select-none touch-manipulation transition-transform transition-opacity duration-150 ease-out active:scale-[0.97] active:opacity-70;
+  }
 }

@@ -7,6 +7,8 @@ import { AddExpenseModal } from '@/components/expenses/add-expense-modal';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ListState } from '@/components/ui/list-state';
+import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 type ExpenseType = { id: string; name: string };
@@ -76,24 +78,40 @@ export default function ExpensesHomePage() {
         </div>
 
         <div className="mt-3 space-y-2">
-          {(recent.data ?? []).length === 0 ? (
-            <EmptyState
-              title="No expenses yet"
-              description="Start tracking spending by adding your first expense."
-              ctaLabel="Add Expense"
-              onCta={() => setShowAdd(true)}
-            />
-          ) : (
-            (recent.data ?? []).slice(0, 15).map((expense) => (
-              <div key={expense.id} className="flex items-center justify-between rounded-xl border border-[var(--border-glass)] p-3">
-                <div>
-                  <p className="text-sm font-medium text-[var(--text-primary)]">{expense.type.name}</p>
-                  <p className="text-xs text-[var(--text-secondary)]">{formatDate(expense.date)}</p>
-                </div>
-                <p className="font-mono text-sm font-semibold">{formatCurrency(expense.amount)}</p>
+          <ListState
+            isLoading={recent.isLoading}
+            isError={recent.isError}
+            isEmpty={Boolean(recent.isSuccess && (recent.data?.length ?? 0) === 0)}
+            renderSkeleton={() => (
+              <div className="space-y-2">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="rounded-xl border border-[var(--border-glass)] p-3">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="mt-2 h-3 w-20" />
+                  </div>
+                ))}
               </div>
-            ))
-          )}
+            )}
+            renderEmpty={() => (
+              <EmptyState
+                title="No expenses yet"
+                description="Start tracking spending by adding your first expense."
+                ctaLabel="Add Expense"
+                onCta={() => setShowAdd(true)}
+              />
+            )}
+            renderContent={() =>
+              (recent.data ?? []).slice(0, 15).map((expense) => (
+                <div key={expense.id} className="flex items-center justify-between rounded-xl border border-[var(--border-glass)] p-3">
+                  <div>
+                    <p className="text-sm font-medium text-[var(--text-primary)]">{expense.type.name}</p>
+                    <p className="text-xs text-[var(--text-secondary)]">{formatDate(expense.date)}</p>
+                  </div>
+                  <p className="font-mono text-sm font-semibold">{formatCurrency(expense.amount)}</p>
+                </div>
+              ))
+            }
+          />
         </div>
       </GlassCard>
 

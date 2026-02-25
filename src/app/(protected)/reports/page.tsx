@@ -9,6 +9,8 @@ import { CategoryPie } from '@/components/reports/category-pie';
 import { ExportButtons } from '@/components/reports/export-buttons';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Button } from '@/components/ui/button';
+import { ListState } from '@/components/ui/list-state';
+import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/lib/utils';
 
 type ReportSummary = {
@@ -46,6 +48,14 @@ export default function ReportsPage() {
     }
   });
 
+  const isReportsLoading = monthly.isLoading || category.isLoading;
+  const isReportsEmpty = Boolean(
+    monthly.isSuccess &&
+      category.isSuccess &&
+      (monthly.data?.length ?? 0) === 0 &&
+      (category.data?.length ?? 0) === 0
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -80,42 +90,59 @@ export default function ReportsPage() {
         </div>
       </section>
 
-      {(monthly.data ?? []).length === 0 && (category.data ?? []).length === 0 ? (
-        <EmptyState
-          title="No data to analyze"
-          description="Add expenses to unlock trends and breakdowns."
-          icon={<BarChart3 className="h-5 w-5" />}
-          primaryAction={{ label: 'Add Expense', onClick: () => router.push('/expenses') }}
-        />
-      ) : (
-        <>
-          {(monthly.data ?? []).length > 0 ? (
-            <TrendChart data={monthly.data ?? []} />
-          ) : (
-            <EmptyState
-              title="No monthly trend available"
-              description="Track expenses across months to view your trend chart."
-              icon={<BarChart3 className="h-5 w-5" />}
-            />
-          )}
-          {(category.data ?? []).length > 0 ? (
-            <CategoryPie data={category.data ?? []} />
-          ) : (
-            <div className="glass-card">
-              <EmptyState
-                title="No category breakdown yet"
-                description="Add categorized expenses to view category analytics."
-                icon={<PieChart className="h-5 w-5" />}
-              />
-              <div className="mt-3 text-center">
-                <Link href="/expenses">
-                  <Button>Add Expense</Button>
-                </Link>
-              </div>
+      <ListState
+        isLoading={isReportsLoading}
+        isEmpty={isReportsEmpty}
+        renderSkeleton={() => (
+          <div className="space-y-4">
+            <div className="glass-card h-[300px] p-4">
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="mt-4 h-[220px] w-full" />
             </div>
-          )}
-        </>
-      )}
+            <div className="glass-card h-[320px] p-4">
+              <Skeleton className="h-6 w-52" />
+              <Skeleton className="mt-4 h-[240px] w-full" />
+            </div>
+          </div>
+        )}
+        renderEmpty={() => (
+          <EmptyState
+            title="No data to analyze"
+            description="Add expenses to unlock trends and breakdowns."
+            icon={<BarChart3 className="h-5 w-5" />}
+            primaryAction={{ label: 'Add Expense', onClick: () => router.push('/expenses') }}
+          />
+        )}
+        renderContent={() => (
+          <>
+            {(monthly.data ?? []).length > 0 ? (
+              <TrendChart data={monthly.data ?? []} />
+            ) : (
+              <EmptyState
+                title="No monthly trend available"
+                description="Track expenses across months to view your trend chart."
+                icon={<BarChart3 className="h-5 w-5" />}
+              />
+            )}
+            {(category.data ?? []).length > 0 ? (
+              <CategoryPie data={category.data ?? []} />
+            ) : (
+              <div className="glass-card">
+                <EmptyState
+                  title="No category breakdown yet"
+                  description="Add categorized expenses to view category analytics."
+                  icon={<PieChart className="h-5 w-5" />}
+                />
+                <div className="mt-3 text-center">
+                  <Link href="/expenses">
+                    <Button>Add Expense</Button>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      />
     </div>
   );
 }
