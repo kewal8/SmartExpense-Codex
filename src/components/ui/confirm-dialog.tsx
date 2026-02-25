@@ -49,8 +49,8 @@ export function ConfirmDialog({
           aria-describedby={descriptionId}
           className={
             isMobile
-              ? 'fixed bottom-0 left-0 right-0 z-50 max-h-[90dvh] overflow-y-auto overscroll-contain rounded-t-[20px] border border-[var(--border-glass)] bg-[var(--bg-secondary)] p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] shadow-modal [@supports(-webkit-touch-callout:none)]:[-webkit-overflow-scrolling:touch]'
-              : 'fixed left-1/2 top-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-[20px] border border-[var(--border-glass)] bg-[var(--bg-secondary)] p-5 shadow-modal [@supports(-webkit-touch-callout:none)]:[-webkit-overflow-scrolling:touch]'
+              ? 'no-scrollbar fixed bottom-0 left-0 right-0 z-50 max-h-[90dvh] overflow-y-auto overscroll-contain rounded-t-[20px] border border-[var(--border-glass)] bg-[var(--bg-secondary)] p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] shadow-modal [@supports(-webkit-touch-callout:none)]:[-webkit-overflow-scrolling:touch]'
+              : 'no-scrollbar fixed left-1/2 top-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-[20px] border border-[var(--border-glass)] bg-[var(--bg-secondary)] p-5 shadow-modal [@supports(-webkit-touch-callout:none)]:[-webkit-overflow-scrolling:touch]'
           }
         >
           {isMobile ? <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-[var(--text-tertiary)]/40" /> : null}

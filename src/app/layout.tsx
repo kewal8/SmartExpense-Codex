@@ -1,11 +1,18 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from '@/app/providers';
 
 export const metadata: Metadata = {
   title: 'SmartExpense',
   description: 'Personal Smart Expense Manager',
-  manifest: '/manifest.json',
+  manifest: '/manifest.json'
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   themeColor: '#007aff'
 };
 
