@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,7 @@ export function MarkAsPaidModal({
   itemId: string;
 }) {
   const qc = useQueryClient();
+  const router = useRouter();
   const { showToast } = useToast();
   const [paidDate, setPaidDate] = useState(new Date().toISOString().slice(0, 10));
   const [note, setNote] = useState('');
@@ -42,13 +44,20 @@ export function MarkAsPaidModal({
       if (!res.ok) throw new Error(payload.error ?? 'Failed to mark paid');
       return payload;
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['emis'] });
-      qc.invalidateQueries({ queryKey: ['recurring'] });
-      qc.invalidateQueries({ queryKey: ['dashboard-stats'] });
-      qc.invalidateQueries({ queryKey: ['dashboard-reminders'] });
+    onSuccess: async () => {
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ['emis'] }),
+        qc.invalidateQueries({ queryKey: ['recurring'] }),
+        qc.invalidateQueries({ queryKey: ['dashboard-stats'] }),
+        qc.invalidateQueries({ queryKey: ['dashboard-reminders'] })
+      ]);
+      await Promise.all([
+        qc.refetchQueries({ queryKey: ['emis'], type: 'active' }),
+        qc.refetchQueries({ queryKey: ['recurring'], type: 'active' })
+      ]);
       showToast('Saved');
       onClose();
+      router.refresh();
     },
     onError: (error) => {
       showToast(error instanceof Error ? error.message : 'Failed to mark paid', 'error');

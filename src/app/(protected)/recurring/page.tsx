@@ -1,7 +1,7 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { RecurringList } from '@/components/recurring/recurring-list';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -11,6 +11,7 @@ import { MarkAsPaidModal } from '@/components/shared/mark-as-paid-modal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { RecurringSummaryCards } from '@/components/recurring/recurring-summary-cards';
 
 type RecurringItem = {
   id: string;
@@ -39,6 +40,12 @@ export default function RecurringPage() {
       return (await res.json()).data;
     }
   });
+
+  const recurringSummary = useMemo(() => {
+    const items = recurring.data ?? [];
+    const totalMonthly = items.reduce((sum, item) => sum + item.amount, 0);
+    return { totalMonthly, activeCount: items.length };
+  }, [recurring.data]);
 
   const deleteRecurring = useMutation({
     mutationFn: async (id: string) => {
@@ -71,6 +78,10 @@ export default function RecurringPage() {
           Add Recurring
         </Button>
       </div>
+
+      {!recurring.isLoading ? (
+        <RecurringSummaryCards totalMonthly={recurringSummary.totalMonthly} activeCount={recurringSummary.activeCount} />
+      ) : null}
 
       {recurring.isLoading ? (
         <div className="space-y-2">

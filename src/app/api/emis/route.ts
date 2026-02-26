@@ -1,9 +1,15 @@
-import { differenceInCalendarMonths } from 'date-fns';
+import { differenceInCalendarMonths, startOfMonth } from 'date-fns';
 import { parseBody } from '@/lib/api';
 import { emiSchema } from '@/lib/validations';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/server-auth';
 import { jsonResponse } from '@/lib/utils';
+
+function cycleDate(year: number, month: number, dueDay: number) {
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  const safeDay = Math.min(Math.max(dueDay, 1), lastDay);
+  return new Date(year, month, safeDay);
+}
 
 export async function POST(req: Request) {
   const session = await requireAuth();
@@ -54,5 +60,42 @@ export async function GET() {
     orderBy: { createdAt: 'desc' }
   });
 
-  return jsonResponse({ success: true, data: emis });
+  const today = new Date();
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+  const data = emis.map((emi) => {
+    const paidByCycle = new Set(emi.paidMarks.map((mark) => `${mark.year}-${mark.month}`));
+    const cycleCount = Math.max(emi.totalEmis, 1);
+    const monthCursor = Math.max(
+      0,
+      differenceInCalendarMonths(startOfMonth(todayStart), startOfMonth(emi.startDate))
+    );
+    let nextInstallmentDueAt: Date | null = null;
+
+    for (let index = monthCursor; index < cycleCount; index += 1) {
+      const cycleMonth = emi.startDate.getMonth() + index;
+      const cycleYear = emi.startDate.getFullYear() + Math.floor(cycleMonth / 12);
+      const normalizedMonth = ((cycleMonth % 12) + 12) % 12;
+      const cycleKey = `${cycleYear}-${normalizedMonth}`;
+
+      if (!paidByCycle.has(cycleKey)) {
+        nextInstallmentDueAt = cycleDate(cycleYear, normalizedMonth, emi.dueDay);
+        break;
+      }
+    }
+
+    const nextDueInDays = nextInstallmentDueAt
+      ? Math.ceil((nextInstallmentDueAt.getTime() - todayStart.getTime()) / (1000 * 60 * 60 * 24))
+      : null;
+
+    return {
+      ...emi,
+      nextDueAt: nextInstallmentDueAt,
+      nextDueInDays,
+      showMarkPaid:
+        nextInstallmentDueAt ? nextDueInDays !== null && nextDueInDays >= 0 && nextDueInDays <= 7 : false
+    };
+  });
+
+  return jsonResponse({ success: true, data });
 }

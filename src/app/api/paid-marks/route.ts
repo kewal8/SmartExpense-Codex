@@ -37,6 +37,8 @@ export async function POST(req: Request) {
 
   try {
     const input = parseBody(paidMarkSchema, await req.json());
+    const normalizedMonth = input.paidDate.getUTCMonth();
+    const normalizedYear = input.paidDate.getUTCFullYear();
 
     const existing = await prisma.paidMark.findUnique({
       where: {
@@ -44,8 +46,8 @@ export async function POST(req: Request) {
           userId,
           itemType: input.itemType,
           itemId: input.itemId,
-          month: input.month,
-          year: input.year
+          month: normalizedMonth,
+          year: normalizedYear
         }
       }
     });
@@ -90,7 +92,12 @@ export async function POST(req: Request) {
 
       const paidMark = await tx.paidMark.create({
         data: {
-          ...input,
+          itemType: input.itemType,
+          itemId: input.itemId,
+          month: normalizedMonth,
+          year: normalizedYear,
+          paidDate: input.paidDate,
+          note: input.note,
           userId,
           expenseId: expense.id,
           emiId: input.itemType === 'emi' ? input.itemId : undefined,

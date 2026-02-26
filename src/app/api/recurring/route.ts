@@ -67,7 +67,7 @@ export async function GET() {
       dueDay: item.dueDay,
       nextDueAt,
       nextDueInDays,
-      showMarkPaid: nextDueInDays <= 7
+      showMarkPaid: nextDueInDays >= 0 && nextDueInDays <= 7
     };
   });
 

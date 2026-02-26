@@ -22,6 +22,9 @@ type EMIItem = {
   startDate: string;
   endDate: string;
   paidMarks: Array<{ month: number; year: number }>;
+  nextDueAt: string | null;
+  nextDueInDays: number | null;
+  showMarkPaid: boolean;
 };
 
 export default function EmisPage() {

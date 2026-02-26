@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Check, MoreVertical, Pencil, Trash2 } from 'lucide-react';
@@ -15,6 +16,9 @@ type EMIItem = {
   endDate: string;
   startDate: string;
   paidMarks: EMIPaidMark[];
+  nextDueAt: string | null;
+  nextDueInDays: number | null;
+  showMarkPaid: boolean;
 };
 
 export function EMIList({
@@ -30,6 +34,7 @@ export function EMIList({
   onMarkPaid: (id: string) => void;
   deletingId: string | null;
 }) {
+  const router = useRouter();
   const now = new Date();
   const month = now.getMonth();
   const year = now.getFullYear();
@@ -66,7 +71,20 @@ export function EMIList({
         const overdue = !paidThisMonth && dueDate < now;
 
         return (
-          <div key={emi.id} className={`glass-card p-4 ${overdue ? 'border-[var(--accent-red)]/50' : ''}`}>
+          <div
+            key={emi.id}
+            role="link"
+            tabIndex={0}
+            aria-label={`Open EMI details for ${emi.name}`}
+            onClick={() => router.push(`/emis/${emi.id}`)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                router.push(`/emis/${emi.id}`);
+              }
+            }}
+            className={`glass-card tap-feedback-soft cursor-pointer p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] focus-visible:ring-offset-2 ${overdue ? 'border-[var(--accent-red)]/50' : ''}`}
+          >
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-base font-semibold">{emi.name}</h3>
@@ -85,15 +103,24 @@ export function EMIList({
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => onMarkPaid(emi.id)}
-                  aria-label={`Mark EMI ${emi.name} as paid`}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[rgba(52,199,89,0.25)] bg-[rgba(52,199,89,0.12)] px-3 py-2 text-sm font-medium text-[var(--accent-green)] transition-colors hover:bg-[rgba(52,199,89,0.18)]"
-                >
-                  <Check className="h-4 w-4" />
-                  Mark Paid
-                </button>
+                {emi.showMarkPaid ? (
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onMarkPaid(emi.id);
+                    }}
+                    aria-label={`Mark EMI ${emi.name} as paid`}
+                    className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[rgba(52,199,89,0.25)] bg-[rgba(52,199,89,0.12)] px-3 py-2 text-sm font-medium text-[var(--accent-green)] transition-colors hover:bg-[rgba(52,199,89,0.18)]"
+                  >
+                    <Check className="h-4 w-4" />
+                    Mark Paid
+                  </button>
+                ) : (
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    {emi.nextDueAt ? `Paid. Next due ${formatDate(emi.nextDueAt)}` : 'All installments paid'}
+                  </p>
+                )}
                 <div data-action-menu-root className="relative">
                   <button
                     type="button"
@@ -101,7 +128,10 @@ export function EMIList({
                     aria-haspopup="menu"
                     aria-expanded={openMenuId === emi.id}
                     className="tap-feedback-soft inline-flex h-11 w-11 items-center justify-center rounded-xl text-[var(--text-tertiary)] transition-colors hover:bg-[var(--bg-glass-hover)] hover:text-[var(--text-secondary)]"
-                    onClick={() => setOpenMenuId((current) => (current === emi.id ? null : emi.id))}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setOpenMenuId((current) => (current === emi.id ? null : emi.id));
+                    }}
                   >
                     <MoreVertical className="h-5 w-5" />
                   </button>
@@ -115,7 +145,8 @@ export function EMIList({
                         type="button"
                         role="menuitem"
                         className="block w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-glass-hover)]"
-                        onClick={() => {
+                        onClick={(event) => {
+                          event.stopPropagation();
                           setOpenMenuId(null);
                           onEdit(emi);
                         }}
@@ -130,7 +161,8 @@ export function EMIList({
                         role="menuitem"
                         disabled={deletingId === emi.id}
                         className="block w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--accent-red)] transition-colors hover:bg-[rgba(255,59,48,0.12)] disabled:text-[var(--text-tertiary)]"
-                        onClick={() => {
+                        onClick={(event) => {
+                          event.stopPropagation();
                           setOpenMenuId(null);
                           onDelete(emi.id);
                         }}

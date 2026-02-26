@@ -20,6 +20,16 @@ type RecurringItem = {
 
 const TYPES = ['Rent', 'Maintenance', 'Insurance', 'Subscription', 'Utilities', 'Other'];
 
+function toDateInputValue(dueDay: number) {
+  const now = new Date();
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const safeDay = Math.min(Math.max(dueDay, 1), lastDay);
+  const date = new Date(now.getFullYear(), now.getMonth(), safeDay);
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 export function RecurringFormModal({
   open,
   onClose,
@@ -36,7 +46,7 @@ export function RecurringFormModal({
   const [name, setName] = useState('');
   const [type, setType] = useState(TYPES[0]);
   const [amount, setAmount] = useState('');
-  const [dueDay, setDueDay] = useState('1');
+  const [dueDate, setDueDate] = useState(toDateInputValue(1));
 
   useEffect(() => {
     if (!open) return;
@@ -44,22 +54,23 @@ export function RecurringFormModal({
       setName('');
       setType(TYPES[0]);
       setAmount('');
-      setDueDay('1');
+      setDueDate(toDateInputValue(1));
       return;
     }
     setName(initial.name);
     setType(initial.type);
     setAmount(String(initial.amount));
-    setDueDay(String(initial.dueDay));
+    setDueDate(toDateInputValue(initial.dueDay));
   }, [initial, open]);
 
   const submit = useMutation({
     mutationFn: async () => {
+      const selectedDay = Number(dueDate.split('-')[2] ?? '1');
       const body = {
         name,
         type,
         amount: Number(amount),
-        dueDay: Number(dueDay)
+        dueDay: selectedDay
       };
       const url = initial ? `/api/recurring/${initial.id}` : '/api/recurring';
       const method = initial ? 'PUT' : 'POST';
@@ -107,8 +118,9 @@ export function RecurringFormModal({
           <Input type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
         </div>
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Due Day</label>
-          <Input type="number" min="1" max="31" value={dueDay} onChange={(e) => setDueDay(e.target.value)} required />
+          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Due Date</label>
+          <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">Only the selected day is used every month.</p>
         </div>
 
         <Button type="submit" className="w-full" isLoading={submit.isPending} loadingLabel="Saving...">
@@ -116,7 +128,7 @@ export function RecurringFormModal({
         </Button>
       </form>
     ),
-    [amount, dueDay, initial, name, submit, type]
+    [amount, dueDate, initial, name, submit, type]
   );
 
   if (isMobile) {
