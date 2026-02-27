@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PersonDetail } from '@/components/khata/person-detail';
@@ -24,12 +24,15 @@ type Transaction = {
 
 type Person = { id: string; name: string };
 
-export default function PersonKhataPage({ params }: { params: { personId: string } }) {
+export default function PersonKhataPage(props: { params: Promise<{ personId: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const [showLend, setShowLend] = useState(false);
   const [showBorrow, setShowBorrow] = useState(false);
   const [settlingTx, setSettlingTx] = useState<Transaction | null>(null);
   const [settlingId, setSettlingId] = useState<string | null>(null);
+  const [deletingTx, setDeletingTx] = useState<Transaction | null>(null);
+  const [deletingEntryId, setDeletingEntryId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [closeDialogOpen, setCloseDialogOpen] = useState(false);
   const [closeConfirmed, setCloseConfirmed] = useState(false);
@@ -122,6 +125,30 @@ export default function PersonKhataPage({ params }: { params: { personId: string
     }
   });
 
+  const deleteEntry = useMutation({
+    mutationFn: async (entryId: string) => {
+      setDeletingEntryId(entryId);
+      const res = await fetch(`/api/khata/entries/${entryId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Failed to delete entry');
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['person-khata', params.personId] });
+      qc.invalidateQueries({ queryKey: ['persons'] });
+      qc.invalidateQueries({ queryKey: ['dashboard-stats'] });
+      qc.invalidateQueries({ queryKey: ['dashboard-reminders'] });
+      qc.invalidateQueries({ queryKey: ['dashboard-collect-reminders'] });
+      showToast('Entry deleted');
+      setDeletingTx(null);
+      router.refresh();
+    },
+    onError: (error) => {
+      showToast(error instanceof Error ? error.message : 'Failed to delete entry', 'error');
+    },
+    onSettled: () => setDeletingEntryId(null)
+  });
+
   return (
     <div className="space-y-4">
       <PageCrumbHeader
@@ -187,7 +214,12 @@ export default function PersonKhataPage({ params }: { params: { personId: string
         <PersonDetail
           transactions={tx.data ?? []}
           settlingId={settlingId}
+          deletingId={deletingEntryId}
           onSettle={(txItem) => setSettlingTx(txItem)}
+          onDelete={(txItem) => {
+            if (deleteEntry.isPending) return;
+            setDeletingTx(txItem);
+          }}
           onLend={() => setShowLend(true)}
           onBorrow={() => setShowBorrow(true)}
         />
@@ -214,6 +246,22 @@ export default function PersonKhataPage({ params }: { params: { personId: string
         onSubmit={(payload) => {
           if (!settlingTx || settle.isPending) return;
           settle.mutate({ id: settlingTx.id, ...payload });
+        }}
+      />
+      <ConfirmDialog
+        open={Boolean(deletingTx)}
+        title="Delete entry?"
+        description="This will permanently remove this lend/borrow entry. This can’t be undone."
+        confirmText="Delete"
+        variant="danger"
+        isLoading={deleteEntry.isPending}
+        onCancel={() => {
+          if (deleteEntry.isPending) return;
+          setDeletingTx(null);
+        }}
+        onConfirm={() => {
+          if (!deletingTx || deleteEntry.isPending) return;
+          deleteEntry.mutate(deletingTx.id);
         }}
       />
       <ConfirmDialog

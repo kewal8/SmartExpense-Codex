@@ -1,14 +1,13 @@
-import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from '@/app/providers';
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'SmartExpense',
   description: 'Personal Smart Expense Manager',
   manifest: '/manifest.json'
 };
 
-export const viewport: Viewport = {
+export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,

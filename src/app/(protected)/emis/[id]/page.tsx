@@ -15,10 +15,11 @@ function cycleDate(year: number, month: number, dueDay: number) {
 }
 
 type PageProps = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
-export default async function EmiDetailPage({ params }: PageProps) {
+export default async function EmiDetailPage(props: PageProps) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect('/login');

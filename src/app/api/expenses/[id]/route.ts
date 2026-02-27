@@ -2,7 +2,8 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/server-auth';
 import { jsonResponse } from '@/lib/utils';
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await requireAuth();
   if (!session?.user?.id) {
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
