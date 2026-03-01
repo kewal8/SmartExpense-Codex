@@ -11,44 +11,56 @@ import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { useToast } from '@/components/ui/toast';
 
 type ExpenseTypeOption = { id: string; name: string };
+type InitialExpense = {
+  id: string;
+  amount: number;
+  date: string;
+  typeId: string;
+  note?: string | null;
+};
 
 export function AddExpenseModal({
   open,
   onClose,
-  types
+  types,
+  initialExpense
 }: {
   open: boolean;
   onClose: () => void;
   types: ExpenseTypeOption[];
+  initialExpense?: InitialExpense | null;
 }) {
-  const [amount, setAmount] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [amount, setAmount] = useState(initialExpense ? String(initialExpense.amount) : '');
+  const [date, setDate] = useState(initialExpense?.date?.slice(0, 10) ?? new Date().toISOString().slice(0, 10));
   const [typeId, setTypeId] = useState(types[0]?.id ?? '');
-  const [note, setNote] = useState('');
+  const [note, setNote] = useState(initialExpense?.note ?? '');
   const isMobile = useMediaQuery('(max-width: 767px)');
   const qc = useQueryClient();
   const { showToast } = useToast();
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch('/api/expenses', {
-        method: 'POST',
+      const endpoint = initialExpense ? `/api/expenses/${initialExpense.id}` : '/api/expenses';
+      const method = initialExpense ? 'PATCH' : 'POST';
+      const res = await fetch(endpoint, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: Number(amount), date, typeId, note })
       });
-      if (!res.ok) throw new Error('Failed to create expense');
+      if (!res.ok) throw new Error(initialExpense ? 'Failed to update expense' : 'Failed to create expense');
       return res.json();
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['expenses'] });
+      qc.invalidateQueries({ queryKey: ['expense-category-summary'] });
       qc.invalidateQueries({ queryKey: ['dashboard-stats'] });
       onClose();
       setAmount('');
       setNote('');
-      showToast('Saved');
+      showToast(initialExpense ? 'Expense updated' : 'Saved');
     },
     onError: (error) => {
-      showToast(error instanceof Error ? error.message : 'Failed to save expense', 'error');
+      showToast(error instanceof Error ? error.message : initialExpense ? 'Failed to update expense' : 'Failed to save expense', 'error');
     }
   });
 
@@ -57,6 +69,21 @@ export function AddExpenseModal({
       setTypeId(types[0].id);
     }
   }, [typeId, types]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (initialExpense) {
+      setAmount(String(initialExpense.amount));
+      setDate(initialExpense.date.slice(0, 10));
+      setTypeId(initialExpense.typeId);
+      setNote(initialExpense.note ?? '');
+      return;
+    }
+    setAmount('');
+    setDate(new Date().toISOString().slice(0, 10));
+    setTypeId(types[0]?.id ?? '');
+    setNote('');
+  }, [initialExpense, open, types]);
 
   const body = (
     <form
@@ -94,21 +121,21 @@ export function AddExpenseModal({
         <Input value={note} onChange={(e) => setNote(e.target.value)} />
       </div>
       <Button type="submit" className="w-full" isLoading={mutation.isPending} loadingLabel="Saving...">
-        Add Expense
+        {initialExpense ? 'Save Changes' : 'Add Expense'}
       </Button>
     </form>
   );
 
   if (isMobile) {
     return (
-      <BottomSheet open={open} onClose={onClose} title="Add Expense">
+      <BottomSheet open={open} onClose={onClose} title={initialExpense ? 'Edit Expense' : 'Add Expense'}>
         {body}
       </BottomSheet>
     );
   }
 
   return (
-    <Modal open={open} onOpenChange={(value) => (value ? null : onClose())} title="Add Expense">
+    <Modal open={open} onOpenChange={(value) => (value ? null : onClose())} title={initialExpense ? 'Edit Expense' : 'Add Expense'}>
       {body}
     </Modal>
   );

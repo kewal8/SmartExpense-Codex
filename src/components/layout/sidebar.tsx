@@ -3,17 +3,16 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Receipt, CalendarClock, Repeat, HandCoins, ChartNoAxesCombined } from 'lucide-react';
+import { LayoutDashboard, Receipt, CalendarClock, Repeat, HandCoins } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { cn } from '@/lib/utils';
 
 const nav: Array<{ href: Route; label: string; icon: React.ComponentType<{ className?: string }> }> = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/expenses', label: 'Expenses', icon: Receipt },
+  { href: '/expenses', label: 'My Expenses', icon: Receipt },
   { href: '/emis', label: 'EMIs', icon: CalendarClock },
   { href: '/recurring', label: 'Recurring', icon: Repeat },
-  { href: '/khata', label: 'Khata', icon: HandCoins },
-  { href: '/reports', label: 'Reports', icon: ChartNoAxesCombined }
+  { href: '/khata', label: 'Khata', icon: HandCoins }
 ];
 
 export function Sidebar() {

@@ -14,6 +14,15 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { SearchX } from 'lucide-react';
 import { PageCrumbHeader } from '@/components/layout/page-crumb-header';
 
+type ExpenseItem = {
+  id: string;
+  amount: number;
+  date: string;
+  note?: string | null;
+  typeId: string;
+  type: { id: string; name: string };
+};
+
 async function getTypes() {
   const res = await fetch('/api/expense-types');
   if (!res.ok) throw new Error('Failed to fetch types');
@@ -26,6 +35,7 @@ export default function ExpensesPage() {
   const [typeId, setTypeId] = useState('');
   const [page, setPage] = useState(1);
   const [showAdd, setShowAdd] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<ExpenseItem | null>(null);
   const [deletingExpenseId, setDeletingExpenseId] = useState<string | null>(null);
   const [confirmExpenseId, setConfirmExpenseId] = useState<string | null>(null);
   const debouncedSearch = useDebounce(search, 350);
@@ -138,6 +148,10 @@ export default function ExpensesPage() {
         <ExpenseList
           expenses={expenses.data?.items ?? []}
           deletingId={deletingExpenseId}
+          onEdit={(expense) => {
+            setEditingExpense(expense);
+            setShowAdd(true);
+          }}
           onDelete={(id) => {
             if (deletingExpenseId) return;
             setConfirmExpenseId(id);
@@ -159,7 +173,15 @@ export default function ExpensesPage() {
         </Button>
       </div>
 
-      <AddExpenseModal open={showAdd} onClose={() => setShowAdd(false)} types={types.data ?? []} />
+      <AddExpenseModal
+        open={showAdd}
+        onClose={() => {
+          setShowAdd(false);
+          setEditingExpense(null);
+        }}
+        types={types.data ?? []}
+        initialExpense={editingExpense}
+      />
       <ConfirmDialog
         open={Boolean(confirmExpenseId)}
         title="Delete Expense?"

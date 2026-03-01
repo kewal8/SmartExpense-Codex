@@ -3,15 +3,15 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, CalendarClock, Repeat, HandCoins, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Receipt, CalendarClock, Repeat, HandCoins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const nav: Array<{ href: Route; label: string; icon: React.ComponentType<{ className?: string }> }> = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
+  { href: '/expenses', label: 'My Expenses', icon: Receipt },
   { href: '/emis', label: 'EMIs', icon: CalendarClock },
   { href: '/recurring', label: 'Recurring', icon: Repeat },
-  { href: '/khata', label: 'Khata', icon: HandCoins },
-  { href: '/reports', label: 'Reports', icon: BarChart3 }
+  { href: '/khata', label: 'Khata', icon: HandCoins }
 ];
 
 export function BottomNav() {

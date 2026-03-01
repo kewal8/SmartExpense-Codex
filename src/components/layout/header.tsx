@@ -82,6 +82,14 @@ export function Header() {
               >
                 Settings
               </Link>
+              <Link
+                href="/reports"
+                role="menuitem"
+                className="tap-feedback-soft block rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-glass-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]"
+                onClick={() => setMenuOpen(false)}
+              >
+                Reports
+              </Link>
               <button
                 type="button"
                 role="menuitem"

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { Route } from 'next';
-import { ChevronRight, CreditCard, Palette, Bell, UserCircle2, Tags, Users, Wallet, LogOut } from 'lucide-react';
+import { ChevronRight, CreditCard, Palette, Bell, UserCircle2, Tags, Users, Wallet, LogOut, ChartNoAxesCombined } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { GlassCard } from '@/components/ui/glass-card';
 
@@ -48,6 +48,7 @@ export default function SettingsHomePage() {
         <h2 className="text-[13px] font-medium uppercase tracking-wide text-[var(--text-secondary)]">Account</h2>
         <div className="mt-2 space-y-1">
           <SettingsRow href="/settings/profile" label="Profile" icon={UserCircle2} />
+          <SettingsRow href="/reports" label="Reports" icon={ChartNoAxesCombined} />
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: '/login' })}

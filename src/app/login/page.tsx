@@ -86,26 +86,56 @@ export default function LoginPage() {
           </button>
         </div>
 
-        <form className="mt-5 space-y-3" onSubmit={tab === 'login' ? handleLogin : handleRegister}>
+        <form
+          className="mt-5 space-y-3"
+          onSubmit={tab === 'login' ? handleLogin : handleRegister}
+          suppressHydrationWarning
+        >
           {tab === 'register' ? (
             <div>
               <label htmlFor="name" className="mb-1 block text-sm text-[var(--text-secondary)]">
                 Name
               </label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                required
+              />
             </div>
           ) : null}
           <div>
             <label htmlFor="email" className="mb-1 block text-sm text-[var(--text-secondary)]">
               Email
             </label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              required
+            />
           </div>
           <div>
             <label htmlFor="password" className="mb-1 block text-sm text-[var(--text-secondary)]">
               Password
             </label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
+              data-lpignore="true"
+              data-1p-ignore="true"
+              required
+            />
           </div>
           {error ? <p className="text-sm text-[var(--accent-red)]">{error}</p> : null}
           <Button

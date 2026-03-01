@@ -114,7 +114,19 @@ export async function GET(req: Request) {
     const [items, total] = await Promise.all([
       prisma.expense.findMany({
         where,
-        include: { type: true },
+        select: {
+          id: true,
+          amount: true,
+          date: true,
+          note: true,
+          typeId: true,
+          type: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        },
         orderBy,
         skip: (pageNumber - 1) * pageLimit,
         take: pageLimit
