@@ -22,7 +22,9 @@ export async function GET() {
   const session = await requireAuth();
   const authMs = performance.now() - authStart;
   if (!session?.user?.id) {
-    console.log(`[perf] GET /api/dashboard/reminders auth=${authMs.toFixed(1)}ms db=0.0ms total=${(performance.now() - reqStart).toFixed(1)}ms`);
+    console.log(
+      `[PERF] /api/dashboard/reminders total=${(performance.now() - reqStart).toFixed(1)}ms auth=${authMs.toFixed(1)}ms db=0.0ms serialize=0.0ms size=0.0kb`
+    );
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
 
@@ -42,7 +44,13 @@ export async function GET() {
         settled: false,
         dueDate: { gte: startOfMonth(now), lte: addDays(endOfMonth(now), 7) }
       },
-      include: { person: true }
+      select: {
+        id: true,
+        amount: true,
+        settledAmount: true,
+        dueDate: true,
+        person: { select: { name: true } }
+      }
     }),
     prisma.paidMark.findMany({ where: { userId, month, year } })
   ]);
@@ -90,9 +98,14 @@ export async function GET() {
     })
   ].sort((a, b) => a.urgency - b.urgency || a.dueDate.getTime() - b.dueDate.getTime());
 
+  const serializeStart = performance.now();
+  const payload = { success: true, data: reminders };
+  const payloadBytes = Buffer.byteLength(JSON.stringify(payload), 'utf8');
+  const serializeMs = performance.now() - serializeStart;
+
   console.log(
-    `[perf] GET /api/dashboard/reminders auth=${authMs.toFixed(1)}ms db=${dbMs.toFixed(1)}ms total=${(performance.now() - reqStart).toFixed(1)}ms`
+    `[PERF] /api/dashboard/reminders total=${(performance.now() - reqStart).toFixed(1)}ms auth=${authMs.toFixed(1)}ms db=${dbMs.toFixed(1)}ms serialize=${serializeMs.toFixed(1)}ms size=${(payloadBytes / 1024).toFixed(1)}kb`
   );
 
-  return jsonResponse({ success: true, data: reminders });
+  return jsonResponse(payload);
 }

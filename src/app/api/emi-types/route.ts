@@ -5,30 +5,53 @@ import { requireAuth } from '@/lib/server-auth';
 import { jsonResponse } from '@/lib/utils';
 
 export async function GET() {
+  const reqStart = performance.now();
+  const authStart = performance.now();
   const session = await requireAuth();
+  const authMs = performance.now() - authStart;
   if (!session?.user?.id) {
+    console.log(`[PERF] /api/emi-types total=${(performance.now() - reqStart).toFixed(1)}ms auth=${authMs.toFixed(1)}ms db=0.0ms serialize=0.0ms size=0.0kb`);
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
   const userId = session.user.id;
 
-  const types = await prisma.emiType.findMany({
-    where: { userId },
-    orderBy: [{ isDefault: 'desc' }, { name: 'asc' }]
-  });
-
-  const data = await Promise.all(
-    types.map(async (type) => {
-      const emiCount = await prisma.eMI.count({
-        where: { userId, emiType: { equals: type.name, mode: 'insensitive' } }
-      });
-      return {
-        ...type,
-        _count: { emis: emiCount }
-      };
+  const dbStart = performance.now();
+  const [types, counts] = await Promise.all([
+    prisma.emiType.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        name: true,
+        isDefault: true,
+        userId: true,
+        createdAt: true
+      },
+      orderBy: [{ isDefault: 'desc' }, { name: 'asc' }]
+    }),
+    prisma.eMI.groupBy({
+      by: ['emiType'],
+      where: { userId },
+      _count: { _all: true }
     })
+  ]);
+  const countByType = new Map(counts.map((row) => [row.emiType.toLowerCase(), row._count._all]));
+  const dbMs = performance.now() - dbStart;
+
+  const data = types.map((type) => ({
+    ...type,
+    _count: { emis: countByType.get(type.name.toLowerCase()) ?? 0 }
+  }));
+
+  const serializeStart = performance.now();
+  const payload = { success: true, data };
+  const payloadBytes = Buffer.byteLength(JSON.stringify(payload), 'utf8');
+  const serializeMs = performance.now() - serializeStart;
+
+  console.log(
+    `[PERF] /api/emi-types total=${(performance.now() - reqStart).toFixed(1)}ms auth=${authMs.toFixed(1)}ms db=${dbMs.toFixed(1)}ms serialize=${serializeMs.toFixed(1)}ms size=${(payloadBytes / 1024).toFixed(1)}kb`
   );
 
-  return jsonResponse({ success: true, data });
+  return jsonResponse(payload);
 }
 
 export async function POST(req: Request) {

@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
-import { format } from 'date-fns';
+import { format, startOfDay } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { PageCrumbHeader } from '@/components/layout/page-crumb-header';
@@ -43,6 +43,7 @@ export default async function EmiDetailPage(props: PageProps) {
     }
   }
   const installmentCount = Math.max(emi.totalEmis, 1);
+  const today = startOfDay(new Date());
 
   const installments = Array.from({ length: installmentCount }).map((_, index) => {
     const cycleMonth = emi.startDate.getMonth() + index;
@@ -57,9 +58,21 @@ export default async function EmiDetailPage(props: PageProps) {
       dueDate,
       amount: emi.amount,
       paidDate: paidMark?.paidDate ?? null,
-      status: paidMark ? 'Paid' : 'Pending'
+      status: paidMark ? 'Paid' : 'Pending',
+      isFuturePending: !paidMark && dueDate > today,
+      activityDate: paidMark?.paidDate ?? dueDate
     };
   });
+
+  const sortInstallments = (a: (typeof installments)[number], b: (typeof installments)[number]) => {
+    if (a.isFuturePending !== b.isFuturePending) {
+      return a.isFuturePending ? 1 : -1;
+    }
+    if (!a.isFuturePending && !b.isFuturePending) {
+      return b.activityDate.getTime() - a.activityDate.getTime();
+    }
+    return a.dueDate.getTime() - b.dueDate.getTime();
+  };
 
   const grouped = installments.reduce<Record<string, typeof installments>>((acc, installment) => {
     if (!acc[installment.cycleKey]) {
@@ -69,7 +82,11 @@ export default async function EmiDetailPage(props: PageProps) {
     return acc;
   }, {});
 
-  const sortedMonths = Object.keys(grouped).sort((a, b) => (a < b ? 1 : -1));
+  const sortedMonths = Object.keys(grouped).sort((a, b) => {
+    const aTop = grouped[a].slice().sort(sortInstallments)[0];
+    const bTop = grouped[b].slice().sort(sortInstallments)[0];
+    return sortInstallments(aTop, bTop);
+  });
 
   return (
     <div className="space-y-4">
@@ -110,7 +127,7 @@ export default async function EmiDetailPage(props: PageProps) {
               <h2 className="text-sm font-semibold text-[var(--text-secondary)]">{format(new Date(year, month - 1, 1), 'MMMM yyyy')}</h2>
               <div className="mt-3 space-y-2">
                 {grouped[monthKey]
-                  .sort((a, b) => b.dueDate.getTime() - a.dueDate.getTime())
+                  .sort(sortInstallments)
                   .map((entry) => (
                     <div key={`${monthKey}-${entry.dueDate.toISOString()}`} className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border-glass)] p-3">
                       <div className="min-w-0">

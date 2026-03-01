@@ -45,10 +45,14 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   const lifecycleStart = performance.now();
-  const timingLabel = `[perf][GET /api/expenses]`;
+  const timingLabel = `[PERF] /api/expenses`;
+  const authStart = performance.now();
   const session = await requireAuth();
+  const authMs = performance.now() - authStart;
   if (!session?.user?.id) {
-    console.log(`${timingLabel} unauthorized total=${(performance.now() - lifecycleStart).toFixed(1)}ms`);
+    console.log(
+      `${timingLabel} total=${(performance.now() - lifecycleStart).toFixed(1)}ms auth=${authMs.toFixed(1)}ms db=0.0ms serialize=0.0ms size=0.0kb unauthorized=1`
+    );
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
 
@@ -131,7 +135,9 @@ export async function GET(req: Request) {
         }
       }
     };
+    const serializeStart = performance.now();
     const payloadBytes = Buffer.byteLength(JSON.stringify(payload), 'utf8');
+    const serializeMs = performance.now() - serializeStart;
     const totalMs = performance.now() - lifecycleStart;
 
     // Perf triage notes:
@@ -139,9 +145,7 @@ export async function GET(req: Request) {
     // 2) N+1 queries: if dbSelectMs scales linearly with item count or query logs show repeated per-row lookups, consolidate with include/join.
     // 3) Overfetching: if payloadBytes is large relative to UI needs, trim selected fields and enforce tighter pagination.
     // 4) Missing indexes: if dbSelectMs remains high on filtered/sorted queries, run EXPLAIN ANALYZE and add composite indexes for WHERE/ORDER BY columns.
-    console.log(
-      `${timingLabel} dbSelect=${dbSelectMs.toFixed(1)}ms payload=${payloadBytes}B total=${totalMs.toFixed(1)}ms`
-    );
+    console.log(`${timingLabel} total=${totalMs.toFixed(1)}ms auth=${authMs.toFixed(1)}ms db=${dbSelectMs.toFixed(1)}ms serialize=${serializeMs.toFixed(1)}ms size=${(payloadBytes / 1024).toFixed(1)}kb`);
 
     return jsonResponse(payload);
   } catch (error) {
