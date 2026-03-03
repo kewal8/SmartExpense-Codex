@@ -106,21 +106,21 @@ export function RecurringFormModal({
         }}
       >
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Name</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Name</label>
           <Input value={name} onChange={(e) => setName(e.target.value)} required />
         </div>
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Type</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Type</label>
           <Select value={type} onChange={(e) => setType(e.target.value)} options={TYPES.map((t) => ({ label: t, value: t }))} />
         </div>
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Amount</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Amount</label>
           <Input type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
         </div>
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Due Date</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Due Date</label>
           <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
-          <p className="mt-1 text-xs text-[var(--text-secondary)]">Only the selected day is used every month.</p>
+          <p className="mt-1 text-[11px] text-ink-4 font-mono">Only the selected day is used every month.</p>
         </div>
 
         <Button type="submit" className="w-full" isLoading={submit.isPending} loadingLabel="Saving...">

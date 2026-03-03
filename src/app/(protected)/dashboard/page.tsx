@@ -63,6 +63,60 @@ async function getRecurring() {
 
 type PersonOption = { id: string; name: string };
 
+function HeroCard({ data }: {
+  data: {
+    thisMonthSpend: number
+    lastMonthSpend: number
+    deltaPercent: number
+    monthlyBudget: number | null
+    toCollect: number
+    toPay: number
+  }
+}) {
+  const isUp = data.deltaPercent >= 0
+  const delta = Math.abs(data.deltaPercent).toFixed(1)
+  const month = new Date().toLocaleString('en-IN', { month: 'long', year: 'numeric' })
+
+  return (
+    <div className="relative overflow-hidden rounded-[24px] border border-[#7c6af7]/40 bg-gradient-to-br from-[#13112a] via-[#1a1638] to-[#2a1f52] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.3),0_8px_28px_rgba(0,0,0,0.4)]">
+      <div className="pointer-events-none absolute -right-10 -top-10 h-52 w-52 rounded-full bg-[#7c6af7]/40 blur-[60px]" />
+      <div className="pointer-events-none absolute -bottom-8 -left-6 h-40 w-40 rounded-full bg-[#9d8ff9]/25 blur-[40px]" />
+      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-32 w-64 rounded-full bg-[#7c6af7]/10 blur-[50px]" />
+      <p className="mb-1 font-mono text-[11px] font-semibold uppercase tracking-[0.09em] text-white/40">{month}</p>
+      <p className="mb-1 text-[13px] font-medium text-white/50">Total Spent</p>
+      <div className="mb-2 flex items-start gap-1">
+        <span className="mt-[7px] font-mono text-[22px] font-normal text-white/50">₹</span>
+        <span className="font-mono text-[36px] lg:text-[40px] font-semibold leading-none tracking-[-0.05em] text-white">
+          {data.thisMonthSpend.toLocaleString('en-IN')}
+        </span>
+      </div>
+      <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-[rgba(52,211,153,0.25)] bg-[rgba(52,211,153,0.12)] px-3 py-1">
+        <span className="font-mono text-[11px] font-semibold text-semantic-green">
+          {isUp ? '↑' : '↓'} {delta}% vs last month
+        </span>
+      </div>
+      <div className="relative z-10 grid grid-cols-3 gap-1.5">
+        <div className="rounded-[8px] border border-white/[0.06] bg-white/[0.04] px-2.5 py-2">
+          <p className="mb-0.5 font-mono text-[9.5px] font-semibold uppercase tracking-[0.07em] text-white/35">Budget</p>
+          {data.monthlyBudget ? (
+            <p className="font-mono text-[14px] font-semibold tracking-[-0.5px] text-white">₹{data.monthlyBudget.toLocaleString('en-IN')}</p>
+          ) : (
+            <p className="text-[12px] font-medium text-white/30">Not set</p>
+          )}
+        </div>
+        <div className="rounded-[8px] border border-white/[0.06] bg-white/[0.04] px-2.5 py-2">
+          <p className="mb-0.5 font-mono text-[9.5px] font-semibold uppercase tracking-[0.07em] text-white/35">Collect</p>
+          <p className="font-mono text-[15px] font-semibold tracking-[-0.5px] text-semantic-amber">₹{data.toCollect.toLocaleString('en-IN')}</p>
+        </div>
+        <div className="rounded-[8px] border border-white/[0.06] bg-white/[0.04] px-2.5 py-2">
+          <p className="mb-0.5 font-mono text-[9.5px] font-semibold uppercase tracking-[0.07em] text-white/35">To Pay</p>
+          <p className="font-mono text-[15px] font-semibold tracking-[-0.5px] text-semantic-red">₹{data.toPay.toLocaleString('en-IN')}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function DashboardPage() {
   const [showExpense, setShowExpense] = useState(false);
   const [showLend, setShowLend] = useState(false);
@@ -89,11 +143,12 @@ export default function DashboardPage() {
     recurring.data.length === 0;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-[28px] font-bold tracking-[-0.02em] text-[var(--text-primary)]">Dashboard</h1>
-        <p className="mt-1 text-sm text-[var(--text-secondary)]">Track spending and upcoming dues.</p>
-      </div>
+    <div className="space-y-3">
+      {stats.data ? (
+        <HeroCard data={stats.data} />
+      ) : (
+        <div className="h-[220px] animate-pulse rounded-[24px] bg-card border border-stroke" />
+      )}
 
       <QuickActions
         onAddExpense={() => setShowExpense(true)}
@@ -110,30 +165,30 @@ export default function DashboardPage() {
             primaryAction={{ label: 'Add Expense', onClick: () => setShowExpense(true) }}
           />
           <div className="mt-3 flex items-center justify-center gap-4 text-sm">
-            <Link href="/emis" className="text-[var(--accent-blue)] transition-colors hover:text-[var(--accent-blue)]/80">
+            <Link href="/emis" className="text-accent transition-colors hover:text-accent-2">
               Add EMI
             </Link>
-            <Link href="/settings/people" className="text-[var(--accent-blue)] transition-colors hover:text-[var(--accent-blue)]/80">
+            <Link href="/settings/people" className="text-accent transition-colors hover:text-accent-2">
               Add Person
             </Link>
           </div>
         </div>
       ) : null}
 
-      {stats.data ? <StatsRow stats={stats.data} /> : <div className="glass-card">Loading stats...</div>}
+      {stats.data ? <StatsRow stats={stats.data} /> : <div className="bg-card border border-stroke rounded-card shadow-card px-5 py-4 text-ink-3 text-sm">Loading stats...</div>}
 
       {collectReminders.data ? (
         <AmountToCollect items={collectReminders.data} />
       ) : (
-        <div className="glass-card">Loading collection reminders...</div>
+        <div className="bg-card border border-stroke rounded-card shadow-card px-5 py-4 text-ink-3 text-sm">Loading collection reminders...</div>
       )}
 
-      {reminders.data ? <PaymentReminders reminders={reminders.data} /> : <div className="glass-card">Loading reminders...</div>}
+      {reminders.data ? <PaymentReminders reminders={reminders.data} /> : <div className="bg-card border border-stroke rounded-card shadow-card px-5 py-4 text-ink-3 text-sm">Loading reminders...</div>}
 
       {expenses.data ? (
         <RecentExpenses expenses={expenses.data} onAddExpense={() => setShowExpense(true)} />
       ) : (
-        <div className="glass-card">Loading expenses...</div>
+        <div className="bg-card border border-stroke rounded-card shadow-card px-5 py-4 text-ink-3 text-sm">Loading expenses...</div>
       )}
 
       <AddExpenseModal open={showExpense} onClose={() => setShowExpense(false)} types={types.data ?? []} />

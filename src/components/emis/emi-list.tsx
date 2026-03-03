@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { formatDate } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Check, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
@@ -83,106 +83,119 @@ export function EMIList({
                 router.push(`/emis/${emi.id}`);
               }
             }}
-            className={`glass-card tap-feedback-soft cursor-pointer p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] focus-visible:ring-offset-2 ${overdue ? 'border-[var(--accent-red)]/50' : ''}`}
+            className={`bg-card border border-stroke rounded-card shadow-card cursor-pointer p-4 active:scale-[0.99] transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${overdue ? 'border-semantic-red/30 shadow-[0_0_0_1px_rgba(248,113,113,0.15)]' : ''}`}
           >
-            <div className="flex items-start justify-between">
+            {/* Row 1: Name + end date left, badge right */}
+            <div className="flex items-start justify-between gap-2 mb-2">
               <div>
-                <h3 className="text-base font-semibold">{emi.name}</h3>
-                <p className="text-sm text-[var(--text-secondary)]">{formatDate(emi.endDate)} end date</p>
+                <p className="text-[14px] font-semibold text-ink tracking-[-0.2px]">{emi.name}</p>
+                <p className="text-[11px] text-ink-3 font-mono mt-0.5">ends {new Date(emi.endDate).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}</p>
               </div>
               <Badge tone={paidThisMonth ? 'green' : overdue ? 'red' : 'gray'}>
                 {paidThisMonth ? 'Paid' : overdue ? 'Overdue' : 'Unpaid'}
               </Badge>
             </div>
-            <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-mono text-xl font-semibold">{formatCurrency(emi.amount)}</p>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <Badge tone="blue">{emi.emiType}</Badge>
-                  <p className="text-sm text-[var(--text-secondary)]">Due day {emi.dueDay}</p>
-                </div>
-              </div>
-              <div className="flex shrink-0 items-center gap-1.5">
-                {emi.showMarkPaid ? (
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onMarkPaid(emi.id);
-                    }}
-                    aria-label={`Mark EMI ${emi.name} as paid`}
-                    className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[rgba(52,199,89,0.25)] bg-[rgba(52,199,89,0.12)] px-3 py-2 text-sm font-medium text-[var(--accent-green)] transition-colors hover:bg-[rgba(52,199,89,0.18)]"
-                  >
-                    <Check className="h-4 w-4" />
-                    Mark Paid
-                  </button>
-                ) : (
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    {emi.nextDueAt ? `Paid. Next due ${formatDate(emi.nextDueAt)}` : 'All installments paid'}
-                  </p>
-                )}
-                <div data-action-menu-root className="relative">
-                  <button
-                    type="button"
-                    aria-label="More actions"
-                    aria-haspopup="menu"
-                    aria-expanded={openMenuId === emi.id}
-                    className="tap-feedback-soft inline-flex h-11 w-11 items-center justify-center rounded-xl text-[var(--text-tertiary)] transition-colors hover:bg-[var(--bg-glass-hover)] hover:text-[var(--text-secondary)]"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setOpenMenuId((current) => (current === emi.id ? null : emi.id));
-                    }}
-                  >
-                    <MoreVertical className="h-5 w-5" />
-                  </button>
-                  {openMenuId === emi.id ? (
-                    <div
-                      role="menu"
-                      aria-label={`Actions for EMI ${emi.name}`}
-                      className="absolute right-0 top-11 z-20 min-w-[140px] rounded-xl border border-[var(--border-glass)] bg-[var(--bg-glass)] p-1 shadow-[var(--shadow-medium)] backdrop-blur-xl"
-                    >
-                      <button
-                        type="button"
-                        role="menuitem"
-                        className="block w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-glass-hover)]"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setOpenMenuId(null);
-                          onEdit(emi);
-                        }}
-                      >
-                        <span className="inline-flex items-center gap-2">
-                          <Pencil className="h-4 w-4" />
-                          Edit
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        role="menuitem"
-                        disabled={deletingId === emi.id}
-                        className="block w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--accent-red)] transition-colors hover:bg-[rgba(255,59,48,0.12)] disabled:text-[var(--text-tertiary)]"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setOpenMenuId(null);
-                          onDelete(emi.id);
-                        }}
-                      >
-                        <span className="inline-flex items-center gap-2">
-                          {deletingId === emi.id ? <Spinner className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
-                          Delete
-                        </span>
-                      </button>
+
+            {/* Row 2: Amount left, actions right */}
+            {(() => {
+              const pct = Math.min((paidCount / emi.totalEmis) * 100, 100);
+              const fillColor = overdue ? '#f87171' : pct > 80 ? '#34d399' : 'var(--accent)';
+              return (
+                <>
+                  <div className="flex items-center justify-between gap-3 mb-2.5">
+                    <div>
+                      <p className="font-mono text-[20px] font-semibold text-ink tracking-[-0.05em] tabular-nums">₹{emi.amount.toLocaleString('en-IN')}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge tone="blue">{emi.emiType}</Badge>
+                        <span className="text-[11px] text-ink-2 font-mono">Due day {emi.dueDay}</span>
+                      </div>
                     </div>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-            <div className="mt-2 h-2 w-full rounded-full bg-[rgba(134,134,139,0.2)]">
-              <div className="h-2 rounded-full bg-[var(--accent-blue)]" style={{ width: `${Math.min((paidCount / emi.totalEmis) * 100, 100)}%` }} />
-            </div>
-            <p className="mt-1 text-xs text-[var(--text-secondary)]">
-              {paidCount} of {emi.totalEmis} paid
-            </p>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      {emi.showMarkPaid ? (
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onMarkPaid(emi.id);
+                          }}
+                          aria-label={`Mark EMI ${emi.name} as paid`}
+                          className="inline-flex h-8 items-center gap-1.5 bg-semantic-green-soft border border-semantic-green-border text-semantic-green text-[12px] font-semibold rounded-[9px] px-3 hover:bg-semantic-green/20 transition-colors"
+                        >
+                          <Check className="h-4 w-4" />
+                          Mark Paid
+                        </button>
+                      ) : (
+                        <p className="text-[11px] text-ink-3 font-mono">
+                          {emi.nextDueAt ? `Paid. Next due ${formatDate(emi.nextDueAt)}` : 'All installments paid'}
+                        </p>
+                      )}
+                      <div data-action-menu-root className="relative">
+                        <button
+                          type="button"
+                          aria-label="More actions"
+                          aria-haspopup="menu"
+                          aria-expanded={openMenuId === emi.id}
+                          className="inline-flex h-8 w-8 items-center justify-center text-ink-4 hover:bg-card-2 hover:text-ink-2 rounded-lg"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setOpenMenuId((current) => (current === emi.id ? null : emi.id));
+                          }}
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </button>
+                        {openMenuId === emi.id ? (
+                          <div
+                            role="menu"
+                            aria-label={`Actions for EMI ${emi.name}`}
+                            className="absolute right-0 top-9 z-20 min-w-[140px] bg-card border border-stroke shadow-float rounded-card p-1"
+                          >
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className="block w-full text-left transition-colors text-[13px] text-ink hover:bg-card-2 rounded-[6px] px-3 py-2"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setOpenMenuId(null);
+                                onEdit(emi);
+                              }}
+                            >
+                              <span className="inline-flex items-center gap-2">
+                                <Pencil className="h-4 w-4" />
+                                Edit
+                              </span>
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              disabled={deletingId === emi.id}
+                              className="block w-full text-left transition-colors text-semantic-red hover:bg-semantic-red-soft rounded-[6px] px-3 py-2 disabled:text-ink-4"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setOpenMenuId(null);
+                                onDelete(emi.id);
+                              }}
+                            >
+                              <span className="inline-flex items-center gap-2">
+                                {deletingId === emi.id ? <Spinner className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
+                                Delete
+                              </span>
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Row 3: Progress bar + count inline */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-[3px] rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: fillColor }} />
+                    </div>
+                    <span className="text-[10.5px] text-ink-2 font-mono flex-shrink-0 tabular-nums">{paidCount}/{emi.totalEmis}</span>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         );
       })}

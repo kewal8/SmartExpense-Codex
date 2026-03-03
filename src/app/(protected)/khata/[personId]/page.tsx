@@ -9,9 +9,9 @@ import { AddTransactionModal } from '@/components/khata/add-transaction-modal';
 import { SettlementModal } from '@/components/khata/settlement-modal';
 import { useToast } from '@/components/ui/toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { PageCrumbHeader } from '@/components/layout/page-crumb-header';
+import Link from 'next/link';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { MoreVertical } from 'lucide-react';
+import { MoreVertical, ChevronLeft } from 'lucide-react';
 
 type Transaction = {
   id: string;
@@ -149,62 +149,99 @@ export default function PersonKhataPage(props: { params: Promise<{ personId: str
     onSettled: () => setDeletingEntryId(null)
   });
 
+  const transactions = tx.data ?? [];
+  const person = (persons.data ?? []).find((p) => p.id === params.personId);
+  const personName = person?.name ?? 'Person';
+  const netBalance = transactions.reduce((sum, t) => {
+    const remaining = t.amount - t.settledAmount;
+    return sum + (t.type === 'lend' ? remaining : -remaining);
+  }, 0);
+
   return (
     <div className="space-y-4">
-      <PageCrumbHeader
-        title="Person Khata"
-        parentLabel="Khata"
-        parentHref="/khata"
-        crumbs={[
-          { label: 'Khata', href: '/khata' },
-          { label: 'Person Khata' }
-        ]}
-        rightSlot={
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => setShowLend(true)}>
-              Lend
-            </Button>
-            <Button onClick={() => setShowBorrow(true)}>Borrow</Button>
-            <div className="relative">
-              <button
-                ref={menuButtonRef}
-                type="button"
-                aria-label="Khata actions"
-                aria-haspopup="menu"
-                aria-expanded={menuOpen}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-glass-hover)]"
-                onClick={() => setMenuOpen((open) => !open)}
-              >
-                <MoreVertical className="h-5 w-5" />
-              </button>
-              {menuOpen ? (
-                <div
-                  ref={menuRef}
-                  role="menu"
-                  aria-label="Khata actions"
-                  className="absolute right-0 top-11 z-30 min-w-[180px] rounded-xl border border-[var(--border-glass)] bg-[var(--bg-glass)] p-1 shadow-[var(--shadow-medium)] backdrop-blur-xl"
-                >
-                  <button
-                    type="button"
-                    role="menuitem"
-                    className="block w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--accent-red)] transition-colors hover:bg-[rgba(255,59,48,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      setCloseDialogOpen(true);
-                    }}
-                  >
-                    Close this Khata
-                  </button>
-                </div>
-              ) : null}
+      <div>
+        {/* Header row */}
+        <div className="flex items-start justify-between gap-3 mb-1">
+          {/* Left: back + name + subtitle */}
+          <div className="flex items-start gap-3 min-w-0">
+            <Link
+              href="/khata"
+              className="mt-1 flex-shrink-0 w-8 h-8 rounded-[10px] bg-card border border-stroke flex items-center justify-center hover:bg-card-2 transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4 text-ink-3" />
+            </Link>
+            <div className="min-w-0">
+              <h1 className="text-[22px] font-bold tracking-[-0.5px] text-ink truncate">
+                {personName}
+              </h1>
+              <p className="text-[12px] font-mono text-ink-3 mt-0.5">
+                {transactions.length} {transactions.length === 1 ? 'transaction' : 'transactions'} · net{' '}
+                <span style={{ color: netBalance >= 0 ? '#34d399' : '#f87171' }}>
+                  {netBalance >= 0 ? '+' : '−'}₹{Math.abs(netBalance).toLocaleString('en-IN')}
+                </span>
+              </p>
             </div>
           </div>
-        }
-      />
+
+          {/* Right: net balance display */}
+          <div className="flex-shrink-0 text-right">
+            <p
+              className="font-mono text-[20px] font-bold tracking-[-0.5px] tabular-nums"
+              style={{ color: netBalance >= 0 ? '#34d399' : '#f87171' }}
+            >
+              {netBalance >= 0 ? '+' : '−'}₹{Math.abs(netBalance).toLocaleString('en-IN')}
+            </p>
+            <p className="text-[10px] font-mono uppercase tracking-[0.06em] text-ink-4 mt-0.5">
+              {netBalance >= 0 ? 'OWES YOU' : 'YOU OWE'}
+            </p>
+          </div>
+        </div>
+
+        {/* Action buttons row */}
+        <div className="flex items-center gap-2 mt-3 mb-4">
+          <Button variant="secondary" onClick={() => setShowLend(true)}>
+            Lend
+          </Button>
+          <Button onClick={() => setShowBorrow(true)}>Borrow</Button>
+          <div className="relative">
+            <button
+              ref={menuButtonRef}
+              type="button"
+              aria-label="Khata actions"
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-[9px] text-ink-3 transition-colors hover:bg-card-2"
+              onClick={() => setMenuOpen((open) => !open)}
+            >
+              <MoreVertical className="h-4 w-4" />
+            </button>
+            {menuOpen ? (
+              <div
+                ref={menuRef}
+                role="menu"
+                aria-label="Khata actions"
+                className="absolute right-0 top-full mt-1 z-50 min-w-[180px] rounded-xl border border-stroke bg-card p-1 shadow-card"
+              >
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="block w-full rounded-lg px-3 py-2 text-left text-[13px] text-semantic-red transition-colors hover:bg-[rgba(248,113,113,0.08)] focus-visible:outline-none"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setCloseDialogOpen(true);
+                  }}
+                >
+                  Close this Khata
+                </button>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
       {tx.isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="glass-card p-4">
+            <div key={index} className="bg-card border border-stroke rounded-[16px] shadow-card p-4 animate-pulse">
               <Skeleton className="h-4 w-24" />
               <Skeleton className="mt-3 h-5 w-28" />
             </div>
@@ -212,7 +249,7 @@ export default function PersonKhataPage(props: { params: Promise<{ personId: str
         </div>
       ) : (
         <PersonDetail
-          transactions={tx.data ?? []}
+          transactions={transactions}
           settlingId={settlingId}
           deletingId={deletingEntryId}
           onSettle={(txItem) => setSettlingTx(txItem)}
@@ -283,10 +320,10 @@ export default function PersonKhataPage(props: { params: Promise<{ personId: str
           closeKhata.mutate();
         }}
       >
-        <label className="inline-flex items-start gap-2 text-sm text-[var(--text-secondary)]">
+        <label className="inline-flex items-start gap-2 text-[13px] text-ink-3">
           <input
             type="checkbox"
-            className="mt-0.5 h-4 w-4 rounded border border-[var(--border-glass)]"
+            className="mt-0.5 h-4 w-4 rounded border border-stroke"
             checked={closeConfirmed}
             onChange={(e) => setCloseConfirmed(e.target.checked)}
           />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { CreditCard, Lock, Pencil, Trash2 } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -104,12 +105,12 @@ export function EmiTypeManager({
   return (
     <>
       <GlassCard className="p-4">
-        <h2 className="text-xl font-semibold">EMI Types</h2>
+        <p className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-4">EMI Types</p>
 
         {emiTypes.isLoading ? (
           <div className="mt-3 space-y-2">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="rounded-xl border border-[var(--border-glass)] p-3">
+              <div key={index} className="rounded-xl border border-stroke p-3">
                 <Skeleton className="h-4 w-32" />
               </div>
             ))}
@@ -123,22 +124,32 @@ export function EmiTypeManager({
             />
           </div>
         ) : (
-          <div className="mt-3 space-y-2">
+          <motion.div
+            className="mt-3 space-y-2"
+            variants={{ animate: { transition: { staggerChildren: 0.05 } } }}
+            initial="initial"
+            animate="animate"
+          >
             {(emiTypes.data ?? []).map((type) => {
               const locked = type._count.emis > 0;
               const rowLoading = deletingEmiTypeId === type.id;
               const tooltipId = `locked-emi-type-${type.id}`;
               return (
-                <div key={type.id} className="flex items-center justify-between rounded-xl border border-[var(--border-glass)] p-3">
+                <motion.div
+                  key={type.id}
+                  variants={{ initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 } }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                  className="flex items-center justify-between rounded-xl border border-stroke bg-card p-3"
+                >
                   <div>
-                    <p className="text-sm font-medium text-[var(--text-primary)]">{type.name}</p>
-                    <p className="text-xs text-[var(--text-secondary)]">{locked ? `${type._count.emis} EMI(s)` : 'Unused'}</p>
+                    <p className="text-[13.5px] font-medium text-ink">{type.name}</p>
+                    <p className="font-mono text-[11px] text-ink-4">{locked ? `${type._count.emis} EMI(s)` : 'Unused'}</p>
                   </div>
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
                       aria-label={`Edit EMI type ${type.name}`}
-                      className="rounded-lg p-2 text-[var(--accent-blue)] transition-colors hover:bg-[rgba(0,122,255,0.1)] disabled:text-[var(--text-tertiary)]"
+                      className="rounded-lg p-2 text-accent transition-colors hover:bg-accent-soft disabled:text-ink-4"
                       onClick={() => {
                         if (!updateEmiType.isPending) setEditingEmiType(type);
                       }}
@@ -151,20 +162,20 @@ export function EmiTypeManager({
                         aria-label={`Delete EMI type ${type.name}`}
                         aria-disabled={locked ? 'true' : undefined}
                         aria-describedby={locked ? tooltipId : undefined}
-                        className={`rounded-lg p-2 text-[var(--accent-red)] transition-colors hover:bg-[rgba(255,59,48,0.1)] ${
+                        className={`rounded-lg p-2 text-[var(--red)] transition-colors hover:bg-[var(--red-soft)] ${
                           locked ? 'cursor-not-allowed' : ''
-                        } ${rowLoading ? 'cursor-wait text-[var(--text-tertiary)]' : ''}`}
+                        } ${rowLoading ? 'cursor-wait text-ink-4' : ''}`}
                         onClick={() => {
                           if (rowLoading) return;
                           if (locked) {
-                            if (isMobile) showToast('This EMI type is in use and can’t be deleted.');
+                            if (isMobile) showToast('This EMI type is in use and can\u2019t be deleted.');
                             return;
                           }
                           setConfirmEmiTypeId(type.id);
                         }}
                         disabled={rowLoading}
                       >
-                        {rowLoading ? <Spinner className="h-4 w-4" /> : locked ? <Lock className="h-4 w-4 text-[var(--text-tertiary)]" /> : <Trash2 className="h-4 w-4" />}
+                        {rowLoading ? <Spinner className="h-4 w-4" /> : locked ? <Lock className="h-4 w-4 text-ink-4" /> : <Trash2 className="h-4 w-4" />}
                       </button>
                       {locked ? (
                         <span
@@ -172,15 +183,15 @@ export function EmiTypeManager({
                           role="tooltip"
                           className="pointer-events-none absolute right-0 top-full z-20 mt-1 w-max max-w-[230px] rounded-lg bg-black/85 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100"
                         >
-                          This EMI type is in use and can’t be deleted.
+                          This EMI type is in use and can&apos;t be deleted.
                         </span>
                       ) : null}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
       </GlassCard>
 

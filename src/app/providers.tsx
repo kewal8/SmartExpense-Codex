@@ -64,7 +64,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <SessionProvider refetchOnWindowFocus={false} refetchWhenOffline={false} refetchInterval={0}>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
         <QueryClientProvider client={queryClient}>
           <MobileGestureGuards />
           <ToastProvider>{children}</ToastProvider>

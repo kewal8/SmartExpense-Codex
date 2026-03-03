@@ -63,7 +63,7 @@ export function PageCrumbHeader({
       </div>
 
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-[28px] font-bold tracking-[-0.02em]">{title}</h1>
+        <h1 className="font-bold tracking-[-0.4px] text-ink" style={{ fontSize: '20px' }}>{title}</h1>
         {rightSlot ? <div className="flex flex-wrap items-center justify-end gap-2">{rightSlot}</div> : null}
       </div>
     </div>

@@ -17,21 +17,27 @@ const nav: Array<{ href: Route; label: string; icon: React.ComponentType<{ class
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="fixed bottom-4 left-4 right-4 z-30 grid grid-cols-5 rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-glass)] p-2 backdrop-blur-xl lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-30 grid grid-cols-5 border-t border-white/[0.06] bg-bg-deep/80 backdrop-blur-xl p-2 lg:hidden">
       {nav.map((item) => {
         const Icon = item.icon;
         const active = pathname.startsWith(item.href);
+        const isCenter = item.href === '/emis';
         return (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              'tap-nav flex h-12 flex-col items-center justify-center rounded-xl text-[11px] font-medium',
-              active ? 'text-[var(--accent-blue)]' : 'text-[var(--text-secondary)]'
+              'tap-nav flex flex-col items-center justify-center rounded-xl text-[11px] font-medium',
+              isCenter
+                ? cn(
+                    '-mt-[18px] h-[52px] w-[52px] rounded-[16px] bg-accent shadow-[0_6px_20px_var(--accent-glow)] mx-auto',
+                    active ? 'text-white' : 'text-white/80'
+                  )
+                : cn('h-12', active ? 'text-accent' : 'text-ink-4')
             )}
           >
-            <Icon className="mb-1 h-4 w-4" />
-            {item.label}
+            <Icon className={cn(isCenter ? 'h-5 w-5' : 'mb-1 h-4 w-4')} />
+            {!isCenter && item.label}
           </Link>
         );
       })}

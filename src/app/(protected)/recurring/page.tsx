@@ -67,13 +67,13 @@ export default function RecurringPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-[28px] font-bold tracking-[-0.02em]">Recurring Payments</h1>
+        <h1 className="text-[20px] font-bold tracking-[-0.4px] text-ink">Recurring Payments</h1>
         <Button
           onClick={() => {
             setEditing(null);
             setShowForm(true);
           }}
-          className="hidden md:inline-flex"
+          className="hidden md:inline-flex bg-accent text-white text-[12px] font-semibold px-3 py-1.5 rounded-[8px] h-8 shadow-[0_2px_8px_var(--accent-glow)] hover:bg-accent/90 transition-all border-0"
         >
           Add Recurring
         </Button>
@@ -86,7 +86,7 @@ export default function RecurringPage() {
       {recurring.isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="glass-card p-4">
+            <div key={index} className="bg-card border border-stroke rounded-[16px] shadow-card animate-pulse h-24">
               <Skeleton className="h-4 w-40" />
               <Skeleton className="mt-3 h-5 w-28" />
             </div>
@@ -120,7 +120,7 @@ export default function RecurringPage() {
           setEditing(null);
           setShowForm(true);
         }}
-        className="fixed bottom-24 right-4 z-30 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent-blue)] text-white shadow-medium md:hidden"
+        className="fixed bottom-24 right-4 z-30 inline-flex h-14 w-14 items-center justify-center rounded-full bg-accent text-white shadow-[0_4px_16px_var(--accent-glow)] md:hidden"
       >
         <Plus className="h-6 w-6" />
       </button>

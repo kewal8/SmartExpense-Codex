@@ -11,9 +11,9 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variantMap: Record<Variant, string> = {
-  primary: 'bg-[var(--accent-blue)] text-white hover:shadow-soft',
-  secondary: 'bg-[var(--bg-glass)] text-[var(--text-primary)] border border-[var(--border-glass)] hover:bg-[var(--bg-glass-hover)]',
-  danger: 'bg-transparent text-[var(--accent-red)] hover:bg-[rgba(255,59,48,0.1)]'
+  primary: 'bg-accent text-white border-0 shadow-[0_4px_12px_var(--accent-glow)] hover:bg-accent/90',
+  secondary: 'bg-[rgba(255,255,255,0.06)] text-ink border border-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.1)]',
+  danger: 'bg-transparent text-[var(--red)] hover:bg-[var(--red-soft)]'
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -26,7 +26,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       disabled={disabled || isLoading}
       aria-busy={isLoading || undefined}
       className={cn(
-        'tap-feedback relative h-12 rounded-xl px-4 text-[15px] font-semibold transition-all duration-200 ease-out disabled:opacity-50',
+        'tap-feedback relative h-11 rounded-[12px] px-4 text-[14px] font-semibold transition-all duration-200 ease-out disabled:opacity-50',
         variantMap[variant],
         className
       )}

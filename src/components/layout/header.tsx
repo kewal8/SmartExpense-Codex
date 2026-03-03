@@ -4,15 +4,27 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Bell, Moon, Sun } from 'lucide-react';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useDarkMode } from '@/hooks/useDarkMode';
-import { Input } from '@/components/ui/input';
 
 export function Header() {
   const pathname = usePathname();
+  const routeTitles: Record<string, string> = {
+    dashboard: 'Dashboard',
+    emis: 'EMIs',
+    khata: 'Khata',
+    recurring: 'Recurring',
+    expenses: 'Expenses',
+    settings: 'Settings',
+    reports: 'Reports',
+  };
+  const pageTitle = pathname.split('/').pop() ?? '';
+  const title = routeTitles[pageTitle] ?? (pageTitle.charAt(0).toUpperCase() + pageTitle.slice(1));
   const { resolvedTheme, setTheme } = useDarkMode();
-  const hideSearchOnMobile = pathname.startsWith('/settings');
+  const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -40,21 +52,23 @@ export function Header() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-20 mb-6 hidden h-16 items-center justify-between rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-glass)] px-4 backdrop-blur-xl lg:flex">
-      <div className={`w-full max-w-sm ${hideSearchOnMobile ? 'hidden md:block' : ''}`}>
-        <Input placeholder="Search..." aria-label="Search" className="h-10" />
+    <header className="sticky top-0 z-20 mb-6 hidden h-16 items-center justify-between rounded-section border border-stroke bg-card px-4 shadow-card lg:flex">
+      <div className="flex items-center gap-1.5">
+        <span className="text-[12.5px] font-medium text-ink-4">SmartExpense</span>
+        <span className="text-[11px] text-ink-5">/</span>
+        <span className="text-[12.5px] font-semibold text-ink">{title}</span>
       </div>
       <div className="ml-4 flex items-center gap-2">
-        <button aria-label="Notifications" className="tap-feedback-soft relative rounded-xl p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-[var(--accent-red)]" />
+        <button aria-label="Notifications" className="w-[34px] h-[34px] rounded-[10px] bg-card border border-stroke flex items-center justify-center hover:bg-card-2 transition-colors relative">
+          <Bell className="w-4 h-4 text-ink-3" />
+          <span className="absolute top-1.5 right-1.5 w-[7px] h-[7px] rounded-full bg-accent border-[1.5px] border-bg" />
         </button>
         <button
           aria-label="Toggle theme"
-          className="tap-feedback-soft rounded-xl p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]"
+          className="w-[34px] h-[34px] rounded-[10px] bg-card border border-stroke flex items-center justify-center hover:bg-card-2 transition-colors relative"
           onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
         >
-          {resolvedTheme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          {mounted && (resolvedTheme === 'dark' ? <Sun className="w-4 h-4 text-ink-3" /> : <Moon className="w-4 h-4 text-ink-3" />)}
         </button>
         <div className="relative">
           <button
@@ -63,21 +77,25 @@ export function Header() {
             aria-label="Profile menu"
             aria-haspopup="menu"
             aria-expanded={menuOpen}
-            className="tap-feedback-soft hidden h-9 w-9 rounded-full bg-[rgba(0,122,255,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-glass)] md:inline-flex"
+            className="hidden h-[34px] w-[34px] rounded-[10px] bg-card border border-stroke items-center justify-center hover:bg-card-2 transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-card md:inline-flex"
             onClick={() => setMenuOpen((open) => !open)}
-          />
-          <div className="h-9 w-9 rounded-full bg-[rgba(0,122,255,0.15)] md:hidden" />
+          >
+            <span className="font-mono text-[12px] font-bold text-accent">
+              {session?.user?.name?.[0]?.toUpperCase() ?? 'U'}
+            </span>
+          </button>
+          <div className="h-9 w-9 rounded-full bg-accent-soft md:hidden" />
           {menuOpen ? (
             <div
               ref={menuRef}
               role="menu"
               aria-label="Profile actions"
-              className="absolute right-0 top-11 z-30 hidden min-w-[180px] rounded-xl border border-[var(--border-glass)] bg-[var(--bg-glass)] p-1 shadow-[var(--shadow-medium)] backdrop-blur-xl md:block"
+              className="absolute right-0 top-11 z-30 hidden min-w-[180px] rounded-xl border border-stroke bg-card p-1 shadow-float md:block"
             >
               <Link
                 href="/settings"
                 role="menuitem"
-                className="tap-feedback-soft block rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-glass-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]"
+                className="tap-feedback-soft block rounded-lg px-3 py-2 text-sm text-ink transition-colors hover:bg-bg-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 onClick={() => setMenuOpen(false)}
               >
                 Settings
@@ -85,7 +103,7 @@ export function Header() {
               <Link
                 href="/reports"
                 role="menuitem"
-                className="tap-feedback-soft block rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-glass-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]"
+                className="tap-feedback-soft block rounded-lg px-3 py-2 text-sm text-ink transition-colors hover:bg-bg-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 onClick={() => setMenuOpen(false)}
               >
                 Reports
@@ -93,7 +111,7 @@ export function Header() {
               <button
                 type="button"
                 role="menuitem"
-                className="tap-feedback-soft block w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-glass-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]"
+                className="tap-feedback-soft block w-full rounded-lg px-3 py-2 text-left text-sm text-ink transition-colors hover:bg-bg-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 onClick={() => {
                   setMenuOpen(false);
                   signOut({ callbackUrl: '/login' });

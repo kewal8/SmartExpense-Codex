@@ -20,9 +20,12 @@ export function Sidebar() {
   const { data } = useSession();
 
   return (
-    <aside className="fixed left-4 top-4 hidden h-[calc(100vh-2rem)] w-[260px] flex-col rounded-[20px] border border-[var(--border-glass)] bg-[var(--bg-glass)] p-4 backdrop-blur-xl lg:flex">
-      <div>
-        <h1 className="text-xl font-bold tracking-tight text-[var(--text-primary)]">SmartExpense</h1>
+    <aside className="fixed left-0 top-0 hidden h-screen w-[224px] flex-col border-r border-white/5 bg-[#0d0c11] p-4 lg:flex">
+      <div className="flex items-center gap-2.5 px-2 pb-5 mb-2 border-b border-white/[0.06]">
+        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[9px] bg-accent shadow-[0_4px_12px_var(--accent-glow)]">
+          <span className="font-mono text-[13px] font-semibold text-white">₹</span>
+        </div>
+        <span className="text-[15px] font-bold tracking-[-0.3px] text-white">SmartExpense</span>
       </div>
       <nav className="mt-8 flex flex-1 flex-col gap-1">
         {nav.map((item) => {
@@ -35,8 +38,8 @@ export function Sidebar() {
               className={cn(
                 'tap-feedback-soft flex h-12 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors',
                 active
-                  ? 'bg-[rgba(0,122,255,0.1)] text-[var(--accent-blue)]'
-                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)]'
+                  ? 'bg-accent/20 text-white border border-accent/30'
+                  : 'text-white/40 hover:bg-white/5 hover:text-white/70'
               )}
             >
               <Icon className="h-4 w-4" />
@@ -45,8 +48,8 @@ export function Sidebar() {
           );
         })}
       </nav>
-      <div className="rounded-xl border border-[var(--border-glass)] p-3">
-        <p className="text-xs text-[var(--text-secondary)]">{data?.user?.email}</p>
+      <div className="rounded-xl border border-white/5 p-3">
+        <p className="text-xs text-ink-3">{data?.user?.email}</p>
       </div>
     </aside>
   );

@@ -1,16 +1,25 @@
-import { formatCurrency } from '@/lib/utils';
-
 export function RecurringSummaryCards({ totalMonthly, activeCount }: { totalMonthly: number; activeCount: number }) {
   return (
-    <section className="grid grid-cols-2 gap-2">
-      <article className="rounded-2xl border border-[var(--border-glass)] bg-gradient-to-br from-[var(--bg-card)] to-[var(--bg-secondary)] p-4 shadow-[0_1px_2px_rgba(2,6,23,0.06),0_8px_24px_rgba(2,6,23,0.06)]">
-        <p className="text-xs font-medium tracking-wide text-[var(--text-secondary)]">Total Recurring / Month</p>
-        <p className="mt-2 font-mono text-2xl font-semibold text-[var(--text-primary)]">{formatCurrency(totalMonthly)}</p>
+    <div className="grid grid-cols-2 gap-2">
+      <article className="relative overflow-hidden bg-card border border-stroke rounded-card shadow-card p-4">
+        <div className="absolute top-0 left-0 right-0 h-[2.5px] rounded-t-[16px] bg-accent" />
+        <p className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-ink-2 mb-2">
+          Total / Month
+        </p>
+        <p className="font-mono text-[20px] font-semibold tracking-[-0.05em] tabular-nums text-ink">
+          ₹{totalMonthly.toLocaleString('en-IN')}
+        </p>
       </article>
-      <article className="rounded-2xl border border-[var(--border-glass)] bg-gradient-to-br from-[var(--bg-card)] to-[var(--bg-secondary)] p-4 shadow-[0_1px_2px_rgba(2,6,23,0.06),0_8px_24px_rgba(2,6,23,0.06)]">
-        <p className="text-xs font-medium tracking-wide text-[var(--text-secondary)]">Active Recurring</p>
-        <p className="mt-2 font-mono text-2xl font-semibold text-[var(--text-primary)]">{activeCount}</p>
+
+      <article className="relative overflow-hidden bg-card border border-stroke rounded-card shadow-card p-4">
+        <div className="absolute top-0 left-0 right-0 h-[2.5px] rounded-t-[16px] bg-semantic-green" />
+        <p className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-ink-2 mb-2">
+          Active
+        </p>
+        <p className="font-mono text-[20px] font-semibold tracking-[-0.05em] tabular-nums text-ink">
+          {activeCount}
+        </p>
       </article>
-    </section>
+    </div>
   );
 }

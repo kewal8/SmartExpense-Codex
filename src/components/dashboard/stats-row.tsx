@@ -1,31 +1,25 @@
-import { formatCurrency } from '@/lib/utils';
 import { StatCard } from '@/components/ui/stat-card';
 
 type DashboardStats = {
   thisMonthSpend: number;
-  monthlyBudget: number | null;
+  lastMonthSpend: number;
   deltaPercent: number;
   toCollect: number;
-  toPay: number;
   fixedOutflow: number;
 };
 
 export function StatsRow({ stats }: { stats: DashboardStats }) {
   return (
-    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
-      <StatCard title="This Month Spend" value={formatCurrency(stats.thisMonthSpend)} meta={`${stats.deltaPercent.toFixed(1)}% vs last month`} />
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <StatCard title="This Month Spend" value={`₹${stats.thisMonthSpend.toLocaleString('en-IN')}`} meta="spending so far" accent="accent" />
+      <StatCard title="Fixed Outflow" value={`₹${stats.fixedOutflow.toLocaleString('en-IN')}`} meta="EMIs + recurring" accent="red" />
+      <StatCard title="To Collect" value={`₹${stats.toCollect.toLocaleString('en-IN')}`} accent="amber" />
       <StatCard
-        title="Monthly Budget"
-        value={stats.monthlyBudget ? formatCurrency(stats.monthlyBudget) : 'Not Set'}
-        meta={
-          stats.monthlyBudget
-            ? `${((stats.thisMonthSpend / stats.monthlyBudget) * 100 || 0).toFixed(1)}% used`
-            : 'Set in settings'
-        }
+        title="vs Last Month"
+        value={`${stats.deltaPercent >= 0 ? '+' : ''}${stats.deltaPercent.toFixed(1)}%`}
+        meta={`₹${stats.lastMonthSpend.toLocaleString('en-IN')} last month`}
+        accent={stats.deltaPercent >= 0 ? 'red' : 'green'}
       />
-      <StatCard title="To Collect" value={formatCurrency(stats.toCollect)} />
-      <StatCard title="To Pay" value={formatCurrency(stats.toPay)} />
-      <StatCard title="Fixed Outflow" value={formatCurrency(stats.fixedOutflow)} />
     </div>
   );
 }

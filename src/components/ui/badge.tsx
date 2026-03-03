@@ -3,13 +3,13 @@ import { cn } from '@/lib/utils';
 type Tone = 'blue' | 'green' | 'red' | 'orange' | 'gray';
 
 const toneMap: Record<Tone, string> = {
-  blue: 'bg-[rgba(0,122,255,0.1)] text-[var(--accent-blue)]',
-  green: 'bg-[rgba(52,199,89,0.1)] text-[var(--accent-green)]',
-  red: 'bg-[rgba(255,59,48,0.1)] text-[var(--accent-red)]',
-  orange: 'bg-[rgba(255,149,0,0.1)] text-[var(--accent-orange)]',
-  gray: 'bg-[rgba(134,134,139,0.12)] text-[var(--text-secondary)]'
+  blue:   'bg-accent-soft text-accent border border-accent-border',
+  green:  'bg-semantic-green-soft text-semantic-green border border-semantic-green-border',
+  red:    'bg-semantic-red-soft text-semantic-red border border-semantic-red-border',
+  orange: 'bg-semantic-amber-soft text-semantic-amber border border-semantic-amber-border',
+  gray:   'bg-bg-deep text-ink-3 border border-stroke',
 };
 
 export function Badge({ tone = 'gray', className, children }: { tone?: Tone; className?: string; children: React.ReactNode }) {
-  return <span className={cn('inline-flex rounded-full px-2.5 py-1 text-xs font-medium', toneMap[tone], className)}>{children}</span>;
+  return <span className={cn('inline-flex rounded-md px-2 py-0.5 text-[10px] font-semibold font-mono tracking-wide', toneMap[tone], className)}>{children}</span>;
 }

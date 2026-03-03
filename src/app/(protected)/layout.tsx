@@ -13,10 +13,10 @@ export default async function ProtectedLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[var(--bg-primary)]">
+    <div className="min-h-[100dvh] bg-bg">
       <Sidebar />
       <MobileTopBar />
-      <main id="main-content" className="mx-auto max-w-[960px] px-4 pb-[calc(env(safe-area-inset-bottom)+7rem)] pt-[calc(env(safe-area-inset-top)+0.5rem)] lg:ml-[300px] lg:px-6 lg:pb-8 lg:pt-4">
+      <main id="main-content" className="mx-auto max-w-[960px] px-4 pb-[calc(env(safe-area-inset-bottom)+7rem)] pt-[calc(env(safe-area-inset-top)+0.5rem)] lg:ml-[224px] lg:px-6 lg:pb-8 lg:pt-4">
         <Header />
         {children}
       </main>

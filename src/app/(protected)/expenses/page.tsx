@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { SearchX } from 'lucide-react';
+import { SearchX, UtensilsCrossed, Car, ShoppingBag, Receipt, Heart, Home, Circle, Tv, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ExpenseFilters } from '@/components/expenses/expense-filters';
 import { ExpenseList } from '@/components/expenses/expense-list';
@@ -12,7 +12,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { useToast } from '@/components/ui/toast';
 import { useDebounce } from '@/hooks/useDebounce';
-import { formatCurrency } from '@/lib/utils';
 
 type ExpenseType = { id: string; name: string };
 type ExpenseItem = {
@@ -29,6 +28,46 @@ type CategorySummary = {
   totalAmount: number;
   percentage: number;
 };
+
+function getCategoryStyle(category: string) {
+  const lower = category?.toLowerCase() ?? '';
+  if (lower.includes('food') || lower.includes('dining') || lower.includes('restaurant') || lower.includes('zomato') || lower.includes('swiggy'))
+    return 'bg-semantic-red-soft border-semantic-red-border';
+  if (lower.includes('transport') || lower.includes('travel') || lower.includes('fuel') || lower.includes('petrol') || lower.includes('uber') || lower.includes('cab'))
+    return 'bg-accent-soft border-accent-border';
+  if (lower.includes('shop') || lower.includes('amazon') || lower.includes('flipkart') || lower.includes('clothes'))
+    return 'bg-[rgba(100,116,139,0.12)] border-[rgba(100,116,139,0.18)]';
+  if (lower.includes('health') || lower.includes('medical') || lower.includes('doctor') || lower.includes('pharmacy'))
+    return 'bg-semantic-green-soft border-semantic-green-border';
+  if (lower.includes('rent') || lower.includes('maintenance'))
+    return 'bg-semantic-amber-soft border-semantic-amber-border';
+  if (lower.includes('bill') || lower.includes('electric') || lower.includes('utility'))
+    return 'bg-semantic-amber-soft border-semantic-amber-border';
+  if (lower.includes('entertain') || lower.includes('movie'))
+    return 'bg-accent-soft border-accent-border';
+  return 'bg-card-2 border-stroke';
+}
+
+function getCategoryIcon(category: string, iconClass = 'w-[16px] h-[16px]') {
+  const lower = category?.toLowerCase() ?? '';
+  if (lower.includes('food') || lower.includes('dining') || lower.includes('restaurant') || lower.includes('zomato') || lower.includes('swiggy'))
+    return <UtensilsCrossed className={`${iconClass} text-semantic-red`} />;
+  if (lower.includes('transport') || lower.includes('travel') || lower.includes('fuel') || lower.includes('petrol') || lower.includes('uber') || lower.includes('cab'))
+    return <Car className={`${iconClass} text-accent-2`} />;
+  if (lower.includes('shop') || lower.includes('amazon') || lower.includes('flipkart') || lower.includes('clothes'))
+    return <ShoppingBag className={`${iconClass} text-slate-400`} />;
+  if (lower.includes('health') || lower.includes('medical') || lower.includes('doctor') || lower.includes('pharmacy'))
+    return <Heart className={`${iconClass} text-semantic-green`} />;
+  if (lower.includes('rent') || lower.includes('maintenance'))
+    return <Home className={`${iconClass} text-semantic-amber`} />;
+  if (lower.includes('bill') || lower.includes('electric') || lower.includes('utility'))
+    return <Receipt className={`${iconClass} text-semantic-amber`} />;
+  if (lower.includes('entertain') || lower.includes('movie') || lower.includes('netflix') || lower.includes('ott'))
+    return <Tv className={`${iconClass} text-accent-2`} />;
+  if (lower.includes('other'))
+    return <Tag className={`${iconClass} text-ink-3`} />;
+  return <Circle className={`${iconClass} text-ink-3`} />;
+}
 
 async function getTypes() {
   const res = await fetch('/api/expense-types');
@@ -100,15 +139,18 @@ export default function ExpensesPage() {
     }
   });
 
+  const totalPages = expenses.data?.pagination.totalPages ?? 1;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-[28px] font-bold tracking-[-0.02em]">My Expenses</h1>
+        <h1 className="text-[20px] font-bold tracking-[-0.4px] text-ink">My Expenses</h1>
         <Button
           onClick={() => {
             setEditingExpense(null);
             setShowAdd(true);
           }}
+          className="text-[12px] font-semibold px-3 py-1.5 rounded-[8px] bg-accent text-white shadow-[0_2px_8px_var(--accent-glow)] hover:bg-accent/90 transition-all border-0 h-8"
         >
           Add Expense
         </Button>
@@ -128,7 +170,7 @@ export default function ExpensesPage() {
         {expenses.isLoading ? (
           <div className="space-y-2">
             {Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="glass-card p-4">
+              <div key={index} className="bg-card border border-stroke rounded-[16px] shadow-card p-4 animate-pulse h-14">
                 <Skeleton className="h-4 w-40" />
                 <Skeleton className="mt-3 h-3 w-24" />
                 <Skeleton className="mt-3 h-5 w-20" />
@@ -174,47 +216,79 @@ export default function ExpensesPage() {
           />
         )}
 
-        <div className="flex items-center justify-between">
-          <Button variant="secondary" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
-            Previous
-          </Button>
-          <p className="text-sm text-[var(--text-secondary)]">Page {page}</p>
-          <Button
-            variant="secondary"
-            onClick={() => setPage((p) => p + 1)}
-            disabled={expenses.data ? page >= expenses.data.pagination.totalPages : false}
+        <div className="flex items-center justify-between px-1 py-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[12px] font-semibold font-mono bg-card border border-stroke text-ink-3 hover:bg-card-2 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
-            Next
-          </Button>
+            ← Prev
+          </button>
+          <span className="text-[11px] font-mono text-ink-4">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[12px] font-semibold font-mono bg-card border border-stroke text-ink-3 hover:bg-card-2 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            Next →
+          </button>
         </div>
       </section>
 
-      <div className="h-px bg-[var(--border-glass)]" />
+      <div className="h-px bg-stroke" />
 
       <section className="space-y-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">Category-wise Spend</h2>
+        <div className="flex items-center justify-between px-1 mb-2">
+          <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-ink-3">Category Breakdown</span>
+          <span className="text-[11px] font-mono text-ink-4">this page</span>
+        </div>
         {categorySummary.isLoading ? (
-          <div className="space-y-2">
+          <div className="bg-card border border-stroke rounded-[16px] shadow-card overflow-hidden">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="glass-card p-4">
+              <div key={index} className="px-4 py-3 border-b border-[rgba(0,0,0,0.04)] dark:border-[rgba(255,255,255,0.04)] last:border-b-0 animate-pulse">
                 <Skeleton className="h-4 w-32" />
-                <Skeleton className="mt-3 h-5 w-24" />
+                <Skeleton className="mt-2 h-1.5 w-full rounded-full" />
               </div>
             ))}
           </div>
         ) : (categorySummary.data ?? []).length === 0 ? (
           <EmptyState title="No category spend data" description="Add expenses to see category totals." />
         ) : (
-          <div className="space-y-2">
-            {(categorySummary.data ?? []).map((item) => (
-              <div key={item.typeId} className="glass-card flex items-center justify-between p-4">
-                <div>
-                  <p className="text-sm font-medium text-[var(--text-primary)]">{item.category}</p>
-                  <p className="text-xs text-[var(--text-secondary)]">{item.percentage.toFixed(1)}% of total</p>
+          <div className="bg-card border border-stroke rounded-[16px] overflow-hidden shadow-card">
+            {(categorySummary.data ?? []).map((item) => {
+              const pct = Math.round(item.percentage);
+              return (
+                <div
+                  key={item.typeId}
+                  className="px-4 py-3 border-b border-[rgba(0,0,0,0.04)] dark:border-[rgba(255,255,255,0.04)] last:border-b-0"
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-7 h-7 rounded-[7px] flex items-center justify-center border flex-shrink-0 ${getCategoryStyle(item.category)}`}>
+                        {getCategoryIcon(item.category, 'w-3.5 h-3.5')}
+                      </div>
+                      <span className="text-[13.5px] font-semibold text-ink tracking-[-0.2px]">
+                        {item.category}
+                      </span>
+                    </div>
+                    <span className="font-mono text-[13.5px] font-semibold text-ink tracking-[-0.4px] tabular-nums">
+                      ₹{item.totalAmount.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 rounded-full bg-card-2 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-accent transition-all"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-mono text-ink-4 w-8 text-right">{pct}%</span>
+                  </div>
                 </div>
-                <p className="font-mono text-lg font-semibold">{formatCurrency(item.totalAmount)}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>

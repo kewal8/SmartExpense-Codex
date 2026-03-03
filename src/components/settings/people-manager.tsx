@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Lock, Pencil, Trash2, Users } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -134,12 +135,12 @@ export function PeopleManager({
   return (
     <>
       <GlassCard className="p-4">
-        <h2 className="text-xl font-semibold">People</h2>
+        <p className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-4">People</p>
 
         {persons.isLoading ? (
           <div className="mt-3 space-y-2">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="rounded-xl border border-[var(--border-glass)] p-3">
+              <div key={index} className="rounded-xl border border-stroke p-3">
                 <Skeleton className="h-4 w-32" />
                 <Skeleton className="mt-2 h-3 w-24" />
               </div>
@@ -154,7 +155,12 @@ export function PeopleManager({
             />
           </div>
         ) : (
-          <div className="mt-3 space-y-2">
+          <motion.div
+            className="mt-3 space-y-2"
+            variants={{ animate: { transition: { staggerChildren: 0.05 } } }}
+            initial="initial"
+            animate="animate"
+          >
             {(persons.data ?? []).map((person) => {
               const txCount = (person.lends?.length ?? 0) + (person.borrows?.length ?? 0);
               const locked = txCount > 0;
@@ -162,16 +168,21 @@ export function PeopleManager({
               const tooltipId = `locked-person-${person.id}`;
 
               return (
-                <div key={person.id} className="flex items-center justify-between rounded-xl border border-[var(--border-glass)] p-3">
+                <motion.div
+                  key={person.id}
+                  variants={{ initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 } }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                  className="flex items-center justify-between rounded-xl border border-stroke bg-card p-3"
+                >
                   <div>
-                    <p className="text-sm font-medium text-[var(--text-primary)]">{person.name}</p>
-                    <p className="text-xs text-[var(--text-secondary)]">{txCount > 0 ? `${txCount} transaction(s)` : 'No transactions'}</p>
+                    <p className="text-[13.5px] font-medium text-ink">{person.name}</p>
+                    <p className="font-mono text-[11px] text-ink-4">{txCount > 0 ? `${txCount} transaction(s)` : 'No transactions'}</p>
                   </div>
                   <div className="group relative flex items-center">
                     <button
                       type="button"
                       aria-label={`Edit ${person.name}`}
-                      className="mr-1 rounded-lg p-2 text-[var(--accent-blue)] transition-colors hover:bg-[rgba(0,122,255,0.1)]"
+                      className="mr-1 rounded-lg p-2 text-accent transition-colors hover:bg-accent-soft"
                       onClick={() => {
                         if (rowLoading) return;
                         setEditingPerson(person);
@@ -185,20 +196,20 @@ export function PeopleManager({
                       aria-label={`Delete ${person.name}`}
                       aria-disabled={locked ? 'true' : undefined}
                       aria-describedby={locked ? tooltipId : undefined}
-                      className={`rounded-lg p-2 text-[var(--accent-red)] transition-colors hover:bg-[rgba(255,59,48,0.1)] ${
+                      className={`rounded-lg p-2 text-[var(--red)] transition-colors hover:bg-[var(--red-soft)] ${
                         locked ? 'cursor-not-allowed' : ''
-                      } ${rowLoading ? 'cursor-wait text-[var(--text-tertiary)]' : ''}`}
+                      } ${rowLoading ? 'cursor-wait text-ink-4' : ''}`}
                       onClick={() => {
                         if (rowLoading) return;
                         if (locked) {
-                          if (isMobile) showToast('This person has transactions and can’t be deleted.');
+                          if (isMobile) showToast('This person has transactions and can\u2019t be deleted.');
                           return;
                         }
                         setConfirmPersonId(person.id);
                       }}
                       disabled={rowLoading}
                     >
-                      {rowLoading ? <Spinner className="h-4 w-4" /> : locked ? <Lock className="h-4 w-4 text-[var(--text-tertiary)]" /> : <Trash2 className="h-4 w-4" />}
+                      {rowLoading ? <Spinner className="h-4 w-4" /> : locked ? <Lock className="h-4 w-4 text-ink-4" /> : <Trash2 className="h-4 w-4" />}
                     </button>
                     {locked ? (
                       <span
@@ -206,14 +217,14 @@ export function PeopleManager({
                         role="tooltip"
                         className="pointer-events-none absolute right-0 top-full z-20 mt-1 w-max max-w-[230px] rounded-lg bg-black/85 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100"
                       >
-                        This person has transactions and can’t be deleted.
+                        This person has transactions and can&apos;t be deleted.
                       </span>
                     ) : null}
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
       </GlassCard>
 
@@ -237,7 +248,7 @@ export function PeopleManager({
           }}
         >
           <div>
-            <label htmlFor="person-name" className="mb-1 block text-sm text-[var(--text-secondary)]">
+            <label htmlFor="person-name" className="mb-1 block text-sm text-ink-3">
               Person Name
             </label>
             <Input
@@ -290,7 +301,7 @@ export function PeopleManager({
           }}
         >
           <div>
-            <label htmlFor="edit-person-name" className="mb-1 block text-sm text-[var(--text-secondary)]">
+            <label htmlFor="edit-person-name" className="mb-1 block text-sm text-ink-3">
               Person Name
             </label>
             <Input

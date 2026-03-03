@@ -103,7 +103,7 @@ export function AddTransactionModal({
     >
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Amount</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Amount</label>
           <Input
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
@@ -117,14 +117,14 @@ export function AddTransactionModal({
         </div>
 
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Person</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Person</label>
           <Select value={personId} onChange={(e) => setPersonId(e.target.value)} options={options} disabled={persons.length === 0} />
         </div>
 
         {persons.length === 0 ? (
-          <p className="text-sm text-[var(--text-secondary)]">
+          <p className="text-[11.5px] text-ink-3">
             No people available. Add a person in{' '}
-            <Link href="/settings/people" className="text-[var(--accent-blue)]">
+            <Link href="/settings/people" className="text-accent hover:text-accent-2">
               Settings
             </Link>{' '}
             first.
@@ -132,12 +132,12 @@ export function AddTransactionModal({
         ) : null}
 
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Due date (optional)</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Due date (optional)</label>
           <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Note (optional)</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Note (optional)</label>
           <Input value={note} onChange={(e) => setNote(e.target.value)} />
         </div>
 

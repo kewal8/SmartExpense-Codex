@@ -1,35 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Geist+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg-primary: #f5f5f7;
-  --bg-secondary: #ffffff;
-  --bg-glass: rgba(255, 255, 255, 0.72);
-  --bg-glass-hover: rgba(255, 255, 255, 0.85);
-  --border-glass: rgba(0, 0, 0, 0.06);
-  --text-primary: #1d1d1f;
-  --text-secondary: #86868b;
-  --text-tertiary: #aeaeb2;
-  --accent-blue: #007aff;
-  --accent-green: #34c759;
-  --accent-red: #ff3b30;
-  --accent-orange: #ff9500;
-  --accent-purple: #af52de;
-  --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.04);
-  --shadow-medium: 0 4px 24px rgba(0, 0, 0, 0.06);
-  --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.12);
+  --bg:             #f0eff5;
+  --bg-deep:        #e8e7ef;
+  --section:        #e4e3eb;
+  --card:           #ffffff;
+  --card-2:         #faf9f7;
+  --sidebar:        #17161e;
+  --sidebar-border: rgba(255,255,255,0.06);
+  --border:         rgba(0,0,0,0.07);
+  --border-light:   rgba(0,0,0,0.04);
+  --ink:            #111018;
+  --ink-2:          #2d2c38;
+  --ink-3:          #6b6a7a;
+  --ink-4:          #9998a8;
+  --ink-5:          #c5c4d0;
+  --accent:         #5b4ff5;
+  --accent-2:       #7c6af7;
+  --accent-soft:    #f0eefe;
+  --accent-border:  #c5befc;
+  --accent-glow:    rgba(91,79,245,0.15);
+  --red:            #e03131;
+  --red-soft:       #fff0f0;
+  --red-border:     #ffd0d0;
+  --green:          #2f9e44;
+  --green-soft:     #f0fff4;
+  --green-border:   #b2f2bb;
+  --amber:          #e67700;
+  --amber-soft:     #fff8e1;
+  --amber-border:   #ffe08a;
+  --shadow-card:    0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-float:   0 2px 8px rgba(0,0,0,0.05), 0 8px 28px rgba(0,0,0,0.09);
+  --shadow-hover:   0 4px 12px rgba(0,0,0,0.07), 0 16px 40px rgba(0,0,0,0.12);
 }
 
 .dark {
-  --bg-primary: #000000;
-  --bg-secondary: #1c1c1e;
-  --bg-glass: rgba(28, 28, 30, 0.72);
-  --bg-glass-hover: rgba(44, 44, 46, 0.9);
-  --border-glass: rgba(255, 255, 255, 0.08);
-  --text-primary: #f5f5f7;
-  --text-secondary: #86868b;
-  --text-tertiary: #aeaeb2;
+  --bg:             #0f0e13;
+  --bg-deep:        #17151f;
+  --section:        #1e1b28;
+  --card:           #252230;
+  --card-2:         #2c2938;
+  --sidebar:        #0d0c11;
+  --sidebar-border: rgba(255,255,255,0.05);
+  --border:         rgba(255,255,255,0.07);
+  --border-light:   rgba(255,255,255,0.04);
+  --ink:            #f2f0f8;
+  --ink-2:          #b8b5cc;
+  --ink-3:          #6e6b84;
+  --ink-4:          #3f3c52;
+  --ink-5:          #2a2838;
+  --accent:         #7c6af7;
+  --accent-2:       #9d8ff9;
+  --accent-soft:    rgba(124,106,247,0.12);
+  --accent-border:  rgba(124,106,247,0.25);
+  --accent-glow:    rgba(124,106,247,0.2);
+  --red:            #f87171;
+  --red-soft:       rgba(248,113,113,0.12);
+  --red-border:     rgba(248,113,113,0.2);
+  --green:          #34d399;
+  --green-soft:     rgba(52,211,153,0.12);
+  --green-border:   rgba(52,211,153,0.2);
+  --amber:          #fbbf24;
+  --amber-soft:     rgba(251,191,36,0.12);
+  --amber-border:   rgba(251,191,36,0.2);
+  --shadow-card:    0 1px 3px rgba(0,0,0,0.2), 0 4px 16px rgba(0,0,0,0.25);
+  --shadow-float:   0 2px 8px rgba(0,0,0,0.3), 0 8px 28px rgba(0,0,0,0.35);
+  --shadow-hover:   0 4px 12px rgba(0,0,0,0.4), 0 16px 40px rgba(0,0,0,0.45);
 }
 
 html,
@@ -39,9 +79,9 @@ body {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Bricolage Grotesque', sans-serif;
   overscroll-behavior: none;
 }
 
@@ -69,7 +109,7 @@ body {
 }
 
 * {
-  border-color: var(--border-glass);
+  border-color: var(--border);
 }
 
 img,
@@ -81,17 +121,15 @@ svg {
 }
 
 *:focus-visible {
-  outline: 2px solid var(--accent-blue);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 .glass-card {
-  background: var(--bg-glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 0.5px solid var(--border-glass);
-  border-radius: 16px;
-  box-shadow: var(--shadow-soft);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-card);
   padding: 20px;
 }
 
@@ -101,7 +139,7 @@ svg {
   top: -48px;
   z-index: 100;
   border-radius: 12px;
-  background: var(--accent-blue);
+  background: var(--accent);
   color: #fff;
   padding: 8px 12px;
 }

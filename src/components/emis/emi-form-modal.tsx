@@ -123,39 +123,39 @@ export function EMIFormModal({
         }}
       >
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Name</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Name</label>
           <Input value={name} onChange={(e) => setName(e.target.value)} required />
         </div>
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Monthly Amount</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Monthly Amount</label>
           <Input type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
         </div>
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">EMI Type</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">EMI Type</label>
           <Select
             value={emiType}
             onChange={(e) => setEmiType(e.target.value)}
             options={(emiTypes.data ?? []).map((t) => ({ label: t.name, value: t.name }))}
           />
           {(emiTypes.data ?? []).length === 0 ? (
-            <p className="mt-2 text-xs text-[var(--text-secondary)]">
+            <p className="mt-2 text-[11.5px] text-ink-3">
               No EMI types available.{' '}
-              <Link href="/settings" className="text-[var(--accent-blue)] underline-offset-2 hover:underline">
+              <Link href="/settings" className="text-accent hover:text-accent-2 underline-offset-2 hover:underline">
                 Manage EMI Types in Settings.
               </Link>
             </p>
           ) : null}
         </div>
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Due Day</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Due Day</label>
           <Input type="number" min="1" max="31" value={dueDay} onChange={(e) => setDueDay(e.target.value)} required />
         </div>
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Start Date</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Start Date</label>
           <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
         </div>
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">End Date</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">End Date</label>
           <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
         </div>
 
