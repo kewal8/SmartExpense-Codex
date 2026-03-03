@@ -7,3 +7,7 @@ out
 *.log
 coverage
 prisma/dev.db
+
+# PWA generated files — regenerated on every build, stale committed versions cause cache conflicts
+public/sw.js
+public/workbox-*.js
