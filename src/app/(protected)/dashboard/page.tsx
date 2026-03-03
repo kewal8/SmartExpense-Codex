@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { StatsRow } from '@/components/dashboard/stats-row';
@@ -121,6 +121,12 @@ export default function DashboardPage() {
   const [showExpense, setShowExpense] = useState(false);
   const [showLend, setShowLend] = useState(false);
   const [showBorrow, setShowBorrow] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setShowExpense(true);
+    window.addEventListener('open-add-expense', handler);
+    return () => window.removeEventListener('open-add-expense', handler);
+  }, []);
 
   const stats = useQuery({ queryKey: ['dashboard-stats'], queryFn: getStats });
   const reminders = useQuery({ queryKey: ['dashboard-reminders'], queryFn: getReminders });

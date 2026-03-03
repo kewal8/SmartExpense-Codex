@@ -1,5 +1,4 @@
 import { FileSearch } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 type EmptyStateAction = {
   label: string;
@@ -16,7 +15,7 @@ export function EmptyState({
   onCta
 }: {
   title: string;
-  description: string;
+  description?: string;
   icon?: React.ReactNode;
   primaryAction?: EmptyStateAction;
   secondaryAction?: EmptyStateAction;
@@ -26,26 +25,40 @@ export function EmptyState({
   const resolvedPrimary = primaryAction ?? (ctaLabel && onCta ? { label: ctaLabel, onClick: onCta } : undefined);
 
   return (
-    <div className="glass-card text-center">
-      <div className="mx-auto mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-glass)] bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
-        {icon ?? <FileSearch className="h-5 w-5" />}
+    <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+      <div className="w-10 h-10 rounded-[12px] bg-card-2 border border-stroke flex items-center justify-center mb-3 text-ink-3">
+        {icon ?? <FileSearch className="w-4 h-4" />}
       </div>
-      <h3 className="text-base font-semibold text-[var(--text-primary)]">{title}</h3>
-      <p className="mt-2 text-sm text-[var(--text-secondary)]">{description}</p>
-      {resolvedPrimary ? (
-        <div className="mt-4">
-          <Button onClick={resolvedPrimary.onClick}>{resolvedPrimary.label}</Button>
-        </div>
-      ) : null}
-      {secondaryAction ? (
+
+      <p className="text-[13px] font-semibold text-ink-2 tracking-[-0.1px]">
+        {title}
+      </p>
+
+      {description && (
+        <p className="text-[11.5px] text-ink-3 font-mono mt-1 max-w-[220px]">
+          {description}
+        </p>
+      )}
+
+      {resolvedPrimary && (
+        <button
+          type="button"
+          onClick={resolvedPrimary.onClick}
+          className="mt-4 h-8 px-4 rounded-[9px] text-[12px] font-semibold bg-accent-soft border border-accent-border text-accent hover:bg-accent/20 transition-colors"
+        >
+          {resolvedPrimary.label}
+        </button>
+      )}
+
+      {secondaryAction && (
         <button
           type="button"
           onClick={secondaryAction.onClick}
-          className="mt-3 text-sm font-medium text-[var(--accent-blue)] transition-colors hover:text-[var(--accent-blue)]/80"
+          className="mt-3 text-[12px] font-medium text-ink-3 hover:text-ink-2 transition-colors"
         >
           {secondaryAction.label}
         </button>
-      ) : null}
+      )}
     </div>
   );
 }

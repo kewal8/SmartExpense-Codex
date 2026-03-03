@@ -76,6 +76,10 @@ async function getTypes() {
 }
 
 export default function ExpensesPage() {
+  const now = new Date();
+  const thisMonth = now.getMonth() + 1;
+  const thisYear = now.getFullYear();
+
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('date_desc');
   const [typeId, setTypeId] = useState('');
@@ -118,6 +122,15 @@ export default function ExpensesPage() {
   });
 
   const types = useQuery({ queryKey: ['expense-types'], queryFn: getTypes });
+
+  const summary = useQuery({
+    queryKey: ['expense-summary', thisMonth, thisYear],
+    queryFn: async () => {
+      const res = await fetch(`/api/expenses/summary?month=${thisMonth}&year=${thisYear}`);
+      if (!res.ok) throw new Error('Failed to fetch summary');
+      return res.json();
+    }
+  });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -166,6 +179,43 @@ export default function ExpensesPage() {
           typeId={typeId}
           setTypeId={setTypeId}
         />
+
+        {summary.data && (
+          <div className="bg-card border border-stroke rounded-[16px] shadow-card px-4 py-3 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-ink-3 font-mono mb-1">
+                {new Date(now.getFullYear(), now.getMonth()).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}
+              </p>
+              <p className="font-mono text-[22px] font-semibold tracking-[-0.05em] tabular-nums text-ink leading-none">
+                ₹{summary.data.thisMonth.total.toLocaleString('en-IN')}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-ink-3 font-mono mb-1.5">
+                vs last month
+              </p>
+              {summary.data.lastMonth.total > 0 ? (
+                <>
+                  <div
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold font-mono"
+                    style={{
+                      background: summary.data.isUp ? 'rgba(248,113,113,0.12)' : 'rgba(52,211,153,0.12)',
+                      border: `1px solid ${summary.data.isUp ? 'rgba(248,113,113,0.2)' : 'rgba(52,211,153,0.2)'}`,
+                      color: summary.data.isUp ? '#f87171' : '#34d399'
+                    }}
+                  >
+                    {summary.data.isUp ? '↑' : '↓'}{summary.data.pct !== null ? `${Math.abs(summary.data.pct)}%` : ''}
+                  </div>
+                  <p className="text-[10px] text-ink-4 font-mono mt-1">
+                    ₹{summary.data.lastMonth.total.toLocaleString('en-IN')} last mo
+                  </p>
+                </>
+              ) : (
+                <p className="text-[11px] text-ink-3 font-mono">No data</p>
+              )}
+            </div>
+          </div>
+        )}
 
         {expenses.isLoading ? (
           <div className="space-y-2">

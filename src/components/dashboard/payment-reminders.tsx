@@ -34,10 +34,10 @@ export function PaymentReminders({ reminders }: { reminders: ReminderItem[] }) {
       {reminders.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
           <div className="w-10 h-10 rounded-[12px] bg-card-2 border border-stroke flex items-center justify-center mb-3">
-            <CheckCircle2 className="w-4 h-4 text-ink-4" />
+            <CheckCircle2 className="w-4 h-4 text-ink-3" />
           </div>
-          <p className="text-[13px] font-semibold text-ink-3">All caught up</p>
-          <p className="text-[11.5px] text-ink-4 font-mono mt-1">No upcoming dues</p>
+          <p className="text-[13px] font-semibold text-ink-2">All caught up</p>
+          <p className="text-[11.5px] text-ink-3 font-mono mt-1">No upcoming dues</p>
         </div>
       ) : (
         <>
