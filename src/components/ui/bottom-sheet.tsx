@@ -39,7 +39,7 @@ export function BottomSheet({
             onDragEnd={(_, info) => {
               if (info.offset.y > 120) onClose();
             }}
-            className="no-scrollbar fixed bottom-0 left-0 right-0 z-50 max-h-[90dvh] overflow-y-auto overscroll-contain rounded-t-[24px] border border-[rgba(255,255,255,0.08)] bg-[#1e1b28] p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] shadow-modal [@supports(-webkit-touch-callout:none)]:[-webkit-overflow-scrolling:touch]"
+            className="no-scrollbar fixed bottom-0 left-0 right-0 z-50 max-h-[90dvh] overflow-y-auto overscroll-contain rounded-t-[24px] border border-[rgba(255,255,255,0.08)] bg-card p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] shadow-modal [@supports(-webkit-touch-callout:none)]:[-webkit-overflow-scrolling:touch]"
           >
             <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-ink-4/40" />
             <h2 className="mb-4 text-[18px] font-bold tracking-[-0.4px] text-ink">{title}</h2>

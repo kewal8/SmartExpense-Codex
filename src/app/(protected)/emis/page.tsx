@@ -38,7 +38,7 @@ export default function EmisPage() {
   const emis = useQuery<EMIItem[]>({
     queryKey: ['emis'],
     queryFn: async () => {
-      const res = await fetch('/api/emis');
+      const res = await fetch('/api/emis?limit=50');
       if (!res.ok) throw new Error('Failed to load EMIs');
       return (await res.json()).data;
     }

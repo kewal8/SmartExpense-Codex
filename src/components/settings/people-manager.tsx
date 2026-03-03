@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, Pencil, Trash2, Users } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { GlassCard } from '@/components/ui/glass-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -134,7 +133,7 @@ export function PeopleManager({
 
   return (
     <>
-      <GlassCard className="p-4">
+      <div className="bg-card border border-stroke rounded-[18px] shadow-card overflow-hidden p-4">
         <p className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-4">People</p>
 
         {persons.isLoading ? (
@@ -226,7 +225,7 @@ export function PeopleManager({
             })}
           </motion.div>
         )}
-      </GlassCard>
+      </div>
 
       <Modal
         open={isCreateOpen}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
 import { formatDate } from '@/lib/utils';
 import { UtensilsCrossed, Car, ShoppingBag, Receipt, Heart, Home, Tv, Tag, Wrench, ReceiptText } from 'lucide-react';
 
@@ -49,10 +49,10 @@ function getCategoryIcon(category: string, iconClass = 'w-[18px] h-[18px]') {
   return <Tag className={iconClass} style={{ color: '#6e6b84' }} />;
 }
 
+const PREVIEW_COUNT = 4;
+
 export function RecentExpenses({ expenses, onAddExpense }: { expenses: RecentExpense[]; onAddExpense: () => void }) {
-  const [expanded, setExpanded] = useState(false);
-  const PREVIEW_COUNT = 4;
-  const visible = expanded ? expenses : expenses.slice(0, PREVIEW_COUNT);
+  const visible = expenses.slice(0, PREVIEW_COUNT);
 
   if (expenses.length === 0) {
     return (
@@ -114,14 +114,14 @@ export function RecentExpenses({ expenses, onAddExpense }: { expenses: RecentExp
         </div>
       ))}
 
-      {/* See all */}
+      {/* See all — navigates to expenses page */}
       {expenses.length > PREVIEW_COUNT && (
-        <button
-          onClick={() => setExpanded(p => !p)}
-          className="w-full py-3 text-[12px] font-semibold font-mono text-accent tracking-wide border-t border-[rgba(0,0,0,0.04)] dark:border-[rgba(255,255,255,0.04)] hover:bg-card-2 transition-colors"
+        <Link
+          href="/expenses"
+          className="flex items-center justify-center gap-1.5 w-full py-3 text-[13px] font-semibold text-accent font-mono border-t border-[rgba(0,0,0,0.04)] dark:border-[rgba(255,255,255,0.04)] hover:bg-card-2 transition-colors"
         >
-          {expanded ? '↑ Show less' : `See all ${expenses.length} transactions →`}
-        </button>
+          See all {expenses.length} transactions →
+        </Link>
       )}
     </div>
   );

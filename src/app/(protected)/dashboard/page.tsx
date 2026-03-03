@@ -20,13 +20,13 @@ async function getStats() {
 }
 
 async function getReminders() {
-  const res = await fetch('/api/dashboard/reminders');
+  const res = await fetch('/api/dashboard/reminders?limit=10');
   if (!res.ok) throw new Error('Failed to fetch reminders');
   return (await res.json()).data;
 }
 
 async function getCollectReminders() {
-  const res = await fetch('/api/dashboard/collect-reminders');
+  const res = await fetch('/api/dashboard/collect-reminders?limit=10');
   if (!res.ok) throw new Error('Failed to fetch collection reminders');
   return (await res.json()).data;
 }
@@ -44,19 +44,19 @@ async function getTypes() {
 }
 
 async function getPersons() {
-  const res = await fetch('/api/persons');
+  const res = await fetch('/api/persons?limit=20');
   if (!res.ok) throw new Error('Failed to fetch persons');
   return (await res.json()).data;
 }
 
 async function getEmis() {
-  const res = await fetch('/api/emis');
+  const res = await fetch('/api/emis?limit=20');
   if (!res.ok) throw new Error('Failed to fetch EMIs');
   return (await res.json()).data;
 }
 
 async function getRecurring() {
-  const res = await fetch('/api/recurring');
+  const res = await fetch('/api/recurring?limit=20');
   if (!res.ok) throw new Error('Failed to fetch recurring payments');
   return (await res.json()).data;
 }

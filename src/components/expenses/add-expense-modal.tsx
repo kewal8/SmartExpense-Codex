@@ -95,7 +95,7 @@ export function AddExpenseModal({
       }}
     >
       <div>
-        <label className="mb-1 block text-sm text-[var(--text-secondary)]">Amount</label>
+        <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Amount</label>
         <Input
           autoFocus
           value={amount}
@@ -109,15 +109,15 @@ export function AddExpenseModal({
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm text-[var(--text-secondary)]">Date</label>
+        <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Date</label>
         <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
       </div>
       <div>
-        <label className="mb-1 block text-sm text-[var(--text-secondary)]">Type</label>
+        <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Type</label>
         <Select value={typeId} onChange={(e) => setTypeId(e.target.value)} options={types.map((t) => ({ label: t.name, value: t.id }))} />
       </div>
       <div>
-        <label className="mb-1 block text-sm text-[var(--text-secondary)]">Note</label>
+        <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Note</label>
         <Input value={note} onChange={(e) => setNote(e.target.value)} />
       </div>
       <Button type="submit" className="w-full" isLoading={mutation.isPending} loadingLabel="Saving...">

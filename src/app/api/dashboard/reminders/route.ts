@@ -16,7 +16,7 @@ function urgency(dueDate: Date) {
   return 3;
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const reqStart = performance.now();
   const authStart = performance.now();
   const session = await requireAuth();
@@ -27,6 +27,8 @@ export async function GET() {
     );
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
+  const { searchParams } = new URL(req.url);
+  const limit = Math.min(parseInt(searchParams.get('limit') ?? '100', 10), 100);
 
   const userId = session.user.id;
   const now = new Date();
@@ -99,7 +101,7 @@ export async function GET() {
   ].sort((a, b) => a.urgency - b.urgency || a.dueDate.getTime() - b.dueDate.getTime());
 
   const serializeStart = performance.now();
-  const payload = { success: true, data: reminders };
+  const payload = { success: true, data: reminders.slice(0, limit) };
   const payloadBytes = Buffer.byteLength(JSON.stringify(payload), 'utf8');
   const serializeMs = performance.now() - serializeStart;
 

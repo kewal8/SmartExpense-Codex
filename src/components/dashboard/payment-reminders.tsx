@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
 import { CheckCircle2 } from 'lucide-react';
 
 type ReminderItem = {
@@ -12,10 +12,10 @@ type ReminderItem = {
   kind: string;
 };
 
+const PREVIEW_COUNT = 3;
+
 export function PaymentReminders({ reminders }: { reminders: ReminderItem[] }) {
-  const [expanded, setExpanded] = useState(false);
-  const PREVIEW_COUNT = 3;
-  const visible = expanded ? reminders : reminders.slice(0, PREVIEW_COUNT);
+  const visible = reminders.slice(0, PREVIEW_COUNT);
 
   return (
     <div className="bg-card border border-stroke rounded-[18px] shadow-card overflow-hidden p-3">
@@ -32,7 +32,7 @@ export function PaymentReminders({ reminders }: { reminders: ReminderItem[] }) {
       </div>
 
       {reminders.length === 0 ? (
-        <div className="bg-card border border-stroke rounded-[18px] shadow-card flex flex-col items-center justify-center py-8 px-4 text-center">
+        <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
           <div className="w-10 h-10 rounded-[12px] bg-card-2 border border-stroke flex items-center justify-center mb-3">
             <CheckCircle2 className="w-4 h-4 text-ink-4" />
           </div>
@@ -101,14 +101,14 @@ export function PaymentReminders({ reminders }: { reminders: ReminderItem[] }) {
             ))}
           </div>
 
-          {/* See all button */}
+          {/* See all — navigates to recurring page */}
           {reminders.length > PREVIEW_COUNT && (
-            <button
-              onClick={() => setExpanded(prev => !prev)}
-              className="w-full pt-3 mt-2 text-[12px] font-semibold text-accent hover:text-accent-2 transition-colors font-mono tracking-wide"
+            <Link
+              href="/recurring"
+              className="flex items-center justify-center gap-1.5 w-full pt-3 mt-2 text-[13px] font-semibold text-accent font-mono border-t border-[rgba(255,255,255,0.04)] hover:bg-card-2 transition-colors"
             >
-              {expanded ? '↑ Show less' : `See all ${reminders.length} dues →`}
-            </button>
+              See all {reminders.length} dues →
+            </Link>
           )}
         </>
       )}

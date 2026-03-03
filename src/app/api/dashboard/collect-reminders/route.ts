@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/server-auth';
 import { jsonResponse } from '@/lib/utils';
 
-export async function GET() {
+export async function GET(req: Request) {
   const reqStart = performance.now();
   const authStart = performance.now();
   const session = await requireAuth();
@@ -14,6 +14,8 @@ export async function GET() {
   }
 
   const userId = session.user.id;
+  const { searchParams } = new URL(req.url);
+  const limit = Math.min(parseInt(searchParams.get('limit') ?? '100', 10), 100);
   const todayStart = startOfDay(new Date());
   const nextWeekEnd = endOfDay(addDays(todayStart, 7));
 
@@ -35,7 +37,8 @@ export async function GET() {
       dueDate: true,
       person: { select: { name: true } }
     },
-    orderBy: { dueDate: 'asc' }
+    orderBy: { dueDate: 'asc' },
+    take: limit
   });
   const dbMs = performance.now() - dbStart;
 

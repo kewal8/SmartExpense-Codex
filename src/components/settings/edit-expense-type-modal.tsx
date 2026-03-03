@@ -49,7 +49,7 @@ export function EditExpenseTypeModal({
         }}
       >
         <div>
-          <label htmlFor="expense-type-name" className="mb-1 block text-sm text-[var(--text-secondary)]">
+          <label htmlFor="expense-type-name" className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">
             {label}
           </label>
           <Input

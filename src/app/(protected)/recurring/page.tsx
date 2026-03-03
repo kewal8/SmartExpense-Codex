@@ -35,7 +35,7 @@ export default function RecurringPage() {
   const recurring = useQuery<RecurringItem[]>({
     queryKey: ['recurring'],
     queryFn: async () => {
-      const res = await fetch('/api/recurring');
+      const res = await fetch('/api/recurring?limit=50');
       if (!res.ok) throw new Error('Failed to load recurring payments');
       return (await res.json()).data;
     }

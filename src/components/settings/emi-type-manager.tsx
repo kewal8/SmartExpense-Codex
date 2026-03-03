@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Lock, Pencil, Trash2 } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { GlassCard } from '@/components/ui/glass-card';
 import { Spinner } from '@/components/ui/spinner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
@@ -104,7 +103,7 @@ export function EmiTypeManager({
 
   return (
     <>
-      <GlassCard className="p-4">
+      <div className="bg-card border border-stroke rounded-[18px] shadow-card overflow-hidden p-4">
         <p className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-4">EMI Types</p>
 
         {emiTypes.isLoading ? (
@@ -193,7 +192,7 @@ export function EmiTypeManager({
             })}
           </motion.div>
         )}
-      </GlassCard>
+      </div>
 
       <ConfirmDialog
         open={Boolean(confirmEmiTypeId)}

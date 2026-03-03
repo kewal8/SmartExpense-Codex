@@ -21,7 +21,7 @@ export function Modal({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/60" />
-        <Dialog.Content className="no-scrollbar fixed left-1/2 top-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-[20px] border border-[rgba(255,255,255,0.08)] bg-[#1e1b28] p-5 shadow-modal [@supports(-webkit-touch-callout:none)]:[-webkit-overflow-scrolling:touch]">
+        <Dialog.Content className="no-scrollbar fixed left-1/2 top-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-[20px] border border-[rgba(255,255,255,0.08)] bg-card p-5 shadow-modal [@supports(-webkit-touch-callout:none)]:[-webkit-overflow-scrolling:touch]">
           <div className="mb-4 flex items-center justify-between">
             <Dialog.Title className="text-[18px] font-bold tracking-[-0.4px] text-ink">{title}</Dialog.Title>
             <Dialog.Close aria-label="Close">

@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const reqStart = performance.now();
   const authStart = performance.now();
   const session = await requireAuth();
@@ -34,6 +34,8 @@ export async function GET() {
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
   const userId = session.user.id;
+  const { searchParams } = new URL(req.url);
+  const limit = Math.min(parseInt(searchParams.get('limit') ?? '100', 10), 100);
 
   const dbStart = performance.now();
   const [persons, unsettledTx] = await Promise.all([
@@ -45,7 +47,8 @@ export async function GET() {
         lends: { where: { userId }, select: { id: true } },
         borrows: { where: { userId }, select: { id: true } }
       },
-      orderBy: { name: 'asc' }
+      orderBy: { name: 'asc' },
+      take: limit
     }),
     prisma.transaction.findMany({
       where: { userId, settled: false, type: { in: ['lend', 'borrow'] } },

@@ -48,7 +48,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const reqStart = performance.now();
   const authStart = performance.now();
   const session = await requireAuth();
@@ -57,12 +57,15 @@ export async function GET() {
     console.log(`[PERF] /api/emis total=${(performance.now() - reqStart).toFixed(1)}ms auth=${authMs.toFixed(1)}ms db=0.0ms serialize=0.0ms size=0.0kb`);
     return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
+  const { searchParams } = new URL(req.url);
+  const limit = Math.min(parseInt(searchParams.get('limit') ?? '100', 10), 100);
 
   const dbStart = performance.now();
   const emis = await prisma.eMI.findMany({
     where: { userId: session.user.id },
     include: { paidMarks: true },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    take: limit
   });
   const dbMs = performance.now() - dbStart;
 

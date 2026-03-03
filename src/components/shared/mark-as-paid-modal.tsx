@@ -75,11 +75,11 @@ export function MarkAsPaidModal({
         }}
       >
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Paid date</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Paid date</label>
           <Input type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} required />
         </div>
         <div>
-          <label className="mb-1 block text-sm text-[var(--text-secondary)]">Note</label>
+          <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Note</label>
           <Input value={note} onChange={(e) => setNote(e.target.value)} />
         </div>
         <Button className="w-full" type="submit" isLoading={markPaid.isPending} loadingLabel="Saving...">

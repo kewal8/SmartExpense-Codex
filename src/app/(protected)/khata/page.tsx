@@ -22,7 +22,7 @@ export default function KhataPage() {
   const persons = useQuery<PersonsResponse>({
     queryKey: ['persons', 'khata-summary'],
     queryFn: async () => {
-      const res = await fetch('/api/persons');
+      const res = await fetch('/api/persons?limit=50');
       if (!res.ok) throw new Error('Failed to fetch persons');
       const payload = await res.json();
       return { data: payload.data ?? [], summary: payload.summary };
