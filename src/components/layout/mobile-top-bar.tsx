@@ -27,10 +27,9 @@ export function MobileTopBar() {
         <button
           type="button"
           aria-label="Notifications"
-          className="w-[34px] h-[34px] rounded-[10px] bg-card border border-stroke flex items-center justify-center hover:bg-card-2 transition-colors relative"
+          className="w-[34px] h-[34px] rounded-[10px] bg-card border border-stroke flex items-center justify-center hover:bg-card-2 transition-colors"
         >
           <Bell className="w-4 h-4 text-ink-3" />
-          <span className="absolute top-1.5 right-1.5 w-[7px] h-[7px] rounded-full bg-accent border-[1.5px] border-bg" />
         </button>
         <button
           type="button"
