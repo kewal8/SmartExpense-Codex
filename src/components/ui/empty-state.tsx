@@ -1,4 +1,5 @@
 import { FileSearch } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 type EmptyStateAction = {
   label: string;
@@ -16,7 +17,7 @@ export function EmptyState({
 }: {
   title: string;
   description?: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   primaryAction?: EmptyStateAction;
   secondaryAction?: EmptyStateAction;
   ctaLabel?: string;
