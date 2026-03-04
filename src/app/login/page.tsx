@@ -2,13 +2,11 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast';
 
 export default function LoginPage() {
-  const router = useRouter();
   const [tab, setTab] = useState<'login' | 'register'>('login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -31,7 +29,7 @@ export default function LoginPage() {
       return;
     }
     showToast('Signed in');
-    router.push('/dashboard');
+    window.location.href = '/dashboard';
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -62,7 +60,7 @@ export default function LoginPage() {
       return;
     }
     showToast('Account created');
-    router.push('/dashboard');
+    window.location.href = '/dashboard';
   };
 
   return (
