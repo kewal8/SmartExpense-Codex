@@ -5,7 +5,7 @@ import { jsonResponse } from '@/lib/utils';
 export async function GET(req: Request) {
   const session = await requireAuth();
   if (!session?.user?.id) {
-    return jsonResponse({ error: 'Unauthorized' }, 401);
+    return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
   }
 
   const { searchParams } = new URL(req.url);
@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   const year = parseInt(searchParams.get('year') ?? '');
 
   if (!month || !year) {
-    return jsonResponse({ error: 'Missing params' }, 400);
+    return jsonResponse({ success: false, error: 'Missing params' }, 400);
   }
 
   const thisMonthStart = new Date(year, month - 1, 1);
@@ -49,10 +49,13 @@ export async function GET(req: Request) {
   const pct = lastTotal > 0 ? Math.round((diff / lastTotal) * 100) : null;
 
   return jsonResponse({
-    thisMonth: { total: thisTotal, count: thisMonthData._count, month, year },
-    lastMonth: { total: lastTotal, count: lastMonthData._count },
-    diff,
-    pct,
-    isUp: diff > 0
+    success: true,
+    data: {
+      thisMonth: { total: thisTotal, count: thisMonthData._count, month, year },
+      lastMonth: { total: lastTotal, count: lastMonthData._count },
+      diff,
+      pct,
+      isUp: diff > 0
+    }
   });
 }

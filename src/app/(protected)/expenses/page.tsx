@@ -128,7 +128,7 @@ export default function ExpensesPage() {
     queryFn: async () => {
       const res = await fetch(`/api/expenses/summary?month=${thisMonth}&year=${thisYear}`);
       if (!res.ok) throw new Error('Failed to fetch summary');
-      return res.json();
+      return (await res.json()).data;
     }
   });
 
