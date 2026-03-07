@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useToast } from '@/components/ui/toast';
+import { useIndianNumberInput } from '@/hooks/useIndianNumberInput';
 
 type RecurringItem = {
   id: string;
@@ -46,6 +47,7 @@ export function RecurringFormModal({
   const [name, setName] = useState('');
   const [type, setType] = useState(TYPES[0]);
   const [amount, setAmount] = useState('');
+  const { displayValue: amountDisplay, handleChange: handleAmountChange } = useIndianNumberInput(amount, setAmount);
   const [dueDate, setDueDate] = useState(toDateInputValue(1));
 
   useEffect(() => {
@@ -115,7 +117,7 @@ export function RecurringFormModal({
         </div>
         <div>
           <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Amount</label>
-          <Input type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
+          <Input value={amountDisplay} onChange={handleAmountChange} inputMode="numeric" placeholder="0" required />
         </div>
         <div>
           <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Due Date</label>

@@ -9,6 +9,7 @@ import { Select } from '@/components/ui/select';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { useToast } from '@/components/ui/toast';
+import { useIndianNumberInput } from '@/hooks/useIndianNumberInput';
 
 type ExpenseTypeOption = { id: string; name: string };
 type InitialExpense = {
@@ -36,6 +37,7 @@ export function AddExpenseModal({
   const [note, setNote] = useState(initialExpense?.note ?? '');
   const isMobile = useMediaQuery('(max-width: 767px)');
   const qc = useQueryClient();
+  const { displayValue: amountDisplay, handleChange: handleAmountChange } = useIndianNumberInput(amount, setAmount);
   const { showToast } = useToast();
 
   const mutation = useMutation({
@@ -98,13 +100,11 @@ export function AddExpenseModal({
         <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Amount</label>
         <Input
           autoFocus
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          type="number"
-          min="0"
-          step="0.01"
+          value={amountDisplay}
+          onChange={handleAmountChange}
+          inputMode="numeric"
           className="h-14 text-2xl font-mono"
-          placeholder="₹0.00"
+          placeholder="0"
           required
         />
       </div>

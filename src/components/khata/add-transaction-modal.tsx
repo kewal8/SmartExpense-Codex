@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
+import { useIndianNumberInput } from '@/hooks/useIndianNumberInput';
 
 type TxType = 'lend' | 'borrow';
 
@@ -27,6 +28,7 @@ export function AddTransactionModal({
   const qc = useQueryClient();
   const { showToast } = useToast();
   const [amount, setAmount] = useState('');
+  const { displayValue: amountDisplay, handleChange: handleAmountChange } = useIndianNumberInput(amount, setAmount);
   const [dueDate, setDueDate] = useState('');
   const [note, setNote] = useState('');
   const [personId, setPersonId] = useState(persons[0]?.id ?? '');
@@ -105,13 +107,11 @@ export function AddTransactionModal({
         <div>
           <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Amount</label>
           <Input
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            type="number"
-            min="0"
-            step="0.01"
+            value={amountDisplay}
+            onChange={handleAmountChange}
+            inputMode="numeric"
             className="h-12 font-mono"
-            placeholder="₹0.00"
+            placeholder="0"
             required
           />
         </div>

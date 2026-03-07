@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useIndianNumberInput } from '@/hooks/useIndianNumberInput';
 
 type Transaction = {
   id: string;
@@ -26,6 +27,7 @@ export function SettlementModal({
 }) {
   const [mode, setMode] = useState<'full' | 'partial'>('full');
   const [amount, setAmount] = useState('');
+  const { displayValue: amountDisplay, handleChange: handleAmountChange } = useIndianNumberInput(amount, setAmount);
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
 
   const remaining = transaction ? Math.max(transaction.amount - transaction.settledAmount, 0) : 0;
@@ -68,7 +70,7 @@ export function SettlementModal({
         {mode === 'partial' ? (
           <div>
             <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Amount</label>
-            <Input type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
+            <Input value={amountDisplay} onChange={handleAmountChange} inputMode="numeric" placeholder="0" required />
           </div>
         ) : null}
 

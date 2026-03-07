@@ -61,6 +61,7 @@ export async function POST(req: Request) {
       let source: 'emi' | 'recurring';
       const sourceId = input.itemId;
       let preferredType = 'Other';
+      let itemName = '';
 
       if (input.itemType === 'emi') {
         const emi = await tx.eMI.findFirst({ where: { id: input.itemId, userId } });
@@ -68,12 +69,14 @@ export async function POST(req: Request) {
         amount = emi.amount;
         source = 'emi';
         preferredType = emi.emiType;
+        itemName = emi.name;
       } else {
         const recurring = await tx.recurringPayment.findFirst({ where: { id: input.itemId, userId } });
         if (!recurring) throw new Error('Recurring payment not found');
         amount = recurring.amount;
         source = 'recurring';
         preferredType = recurring.type;
+        itemName = recurring.name;
       }
 
       const typeId = await getExpenseTypeId(userId, preferredType);
@@ -84,7 +87,7 @@ export async function POST(req: Request) {
           amount,
           date: input.paidDate,
           typeId,
-          note: input.note ?? `${input.itemType.toUpperCase()} payment`,
+          note: input.note ?? itemName,
           source,
           sourceId
         }

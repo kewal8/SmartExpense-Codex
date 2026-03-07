@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useToast } from '@/components/ui/toast';
+import { useIndianNumberInput } from '@/hooks/useIndianNumberInput';
 
 type EMIItem = {
   id: string;
@@ -44,6 +45,7 @@ export function EMIFormModal({
   });
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
+  const { displayValue: amountDisplay, handleChange: handleAmountChange } = useIndianNumberInput(amount, setAmount);
   const [emiType, setEmiType] = useState('');
   const [dueDay, setDueDay] = useState('1');
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
@@ -128,7 +130,7 @@ export function EMIFormModal({
         </div>
         <div>
           <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">Monthly Amount</label>
-          <Input type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
+          <Input value={amountDisplay} onChange={handleAmountChange} inputMode="numeric" placeholder="0" required />
         </div>
         <div>
           <label className="mb-1 block text-[11.5px] font-semibold text-ink-3 uppercase tracking-[0.06em]">EMI Type</label>
