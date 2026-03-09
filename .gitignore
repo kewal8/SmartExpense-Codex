@@ -11,3 +11,6 @@ prisma/dev.db
 # PWA generated files — regenerated on every build, stale committed versions cause cache conflicts
 public/sw.js
 public/workbox-*.js
+
+# Next.js static assets copied during build for Netlify static serving
+public/_next/
