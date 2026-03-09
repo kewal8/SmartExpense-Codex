@@ -33,6 +33,7 @@ model User {
   emiTypes          EmiType[]
   paidMarks         PaidMark[]
   categoryBudgets   CategoryBudget[]
+  raseeds           Raseed[]
 }
 
 model Account {
@@ -208,4 +209,32 @@ model CategoryBudget {
   type   ExpenseType @relation(fields: [typeId], references: [id], onDelete: Cascade)
   userId String
   user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Raseed {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entries     RaseedEntry[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+}
+
+model RaseedEntry {
+  id        String   @id @default(cuid())
+  name      String
+  notes     String?
+  amount    Float
+  paidBy    String
+  date      DateTime @default(now())
+  raseedId  String
+  raseed    Raseed   @relation(fields: [raseedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([raseedId])
 }

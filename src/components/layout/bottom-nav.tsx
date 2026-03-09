@@ -3,12 +3,12 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Receipt, CalendarClock, Repeat, HandCoins } from 'lucide-react';
+import { LayoutDashboard, Receipt, BookOpen, Repeat, HandCoins } from 'lucide-react';
 
 const navItems: Array<{ href: Route; label: string; icon: React.ComponentType<{ className?: string }> }> = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
   { href: '/expenses', label: 'Expenses', icon: Receipt },
-  { href: '/emis', label: 'EMIs', icon: CalendarClock },
+  { href: '/raseed', label: 'Raseed', icon: BookOpen },
   { href: '/recurring', label: 'Recurring', icon: Repeat },
   { href: '/khata', label: 'Khata', icon: HandCoins },
 ];

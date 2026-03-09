@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Receipt, CalendarClock, Repeat, HandCoins } from 'lucide-react';
+import { LayoutDashboard, Receipt, CalendarClock, Repeat, HandCoins, BookOpen } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { cn } from '@/lib/utils';
 
@@ -12,7 +12,8 @@ const nav: Array<{ href: Route; label: string; icon: React.ComponentType<{ class
   { href: '/expenses', label: 'My Expenses', icon: Receipt },
   { href: '/emis', label: 'EMIs', icon: CalendarClock },
   { href: '/recurring', label: 'Recurring', icon: Repeat },
-  { href: '/khata', label: 'Khata', icon: HandCoins }
+  { href: '/khata', label: 'Khata', icon: HandCoins },
+  { href: '/raseed', label: 'Raseed', icon: BookOpen }
 ];
 
 export function Sidebar() {
