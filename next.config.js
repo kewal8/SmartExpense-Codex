@@ -7,7 +7,8 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
-  turbopack: {}
+  turbopack: {},
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/assets' : undefined,
 };
 
 module.exports = withPWA(nextConfig);

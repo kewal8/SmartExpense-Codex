@@ -13,4 +13,4 @@ public/sw.js
 public/workbox-*.js
 
 # Next.js static assets copied during build for Netlify static serving
-public/_next/
+public/assets/
