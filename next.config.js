@@ -8,7 +8,6 @@ const nextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
   turbopack: {},
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/assets' : undefined,
 };
 
 module.exports = withPWA(nextConfig);
