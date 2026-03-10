@@ -120,8 +120,8 @@ export default function RaseedPage() {
 
                 {menuOpenId === r.id && (
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setMenuOpenId(null)} />
-                    <div className="absolute right-0 top-full mt-1 z-50 bg-card border border-stroke rounded-[12px] shadow-card overflow-hidden min-w-[130px]">
+                    <div className="fixed inset-0 z-[199]" onClick={() => setMenuOpenId(null)} />
+                    <div className="absolute right-0 top-full mt-1 z-[200] bg-card border border-stroke rounded-[12px] shadow-card overflow-hidden min-w-[130px]">
                       <button
                         onClick={() => {
                           setDeleteRaseedId(r.id);
