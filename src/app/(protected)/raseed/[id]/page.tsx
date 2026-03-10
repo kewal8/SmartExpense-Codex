@@ -3,14 +3,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Share2, Trash2 } from 'lucide-react';
+import { ArrowLeft, MoreVertical, Pencil, Plus, Share2, Trash2 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 import { AddEntryModal } from '@/components/raseed/add-entry-modal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 type RaseedEntry = {
   id: string;
   name: string;
-  notes?: string;
+  notes?: string | null;
   amount: number;
   paidBy: string;
   date: string;
@@ -41,6 +42,9 @@ export default function RaseedDetailPage() {
   const qc = useQueryClient();
   const { showToast } = useToast();
   const [showAddEntry, setShowAddEntry] = useState(false);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [editTarget, setEditTarget] = useState<RaseedEntry | null>(null);
 
   const raseed = useQuery<RaseedDetail>({
     queryKey: ['raseed', id],
@@ -203,21 +207,56 @@ export default function RaseedDetailPage() {
                     ₹{entry.amount.toLocaleString('en-IN')}
                   </p>
                 </div>
-                <div className="flex items-center justify-between mt-0.5">
+                <div className="flex items-center mt-0.5">
                   <p className="text-[11px] text-ink-3 font-mono">
                     {entry.paidBy} ·{' '}
                     {new Date(entry.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                   </p>
-                  <button
-                    onClick={() => deleteEntry.mutate(entry.id)}
-                    className="text-ink-4 hover:text-[#f87171] transition-colors ml-2"
-                    aria-label="Delete entry"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
                 </div>
                 {entry.notes && (
                   <p className="text-[11px] text-ink-4 font-mono mt-0.5 italic">{entry.notes}</p>
+                )}
+              </div>
+
+              <div className="relative flex-shrink-0">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuOpenId(menuOpenId === entry.id ? null : entry.id);
+                  }}
+                  className="w-7 h-7 rounded-[7px] flex items-center justify-center text-ink-4 hover:text-ink-2 hover:bg-card-2 transition-colors"
+                >
+                  <MoreVertical className="w-4 h-4" />
+                </button>
+
+                {menuOpenId === entry.id && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setMenuOpenId(null)} />
+                    <div className="absolute right-0 top-full mt-1 z-50 bg-card border border-stroke rounded-[12px] shadow-card overflow-hidden min-w-[130px]">
+                      <button
+                        onClick={() => {
+                          setEditTarget(entry);
+                          setMenuOpenId(null);
+                        }}
+                        className="flex items-center gap-2.5 w-full px-3 py-2.5 text-[13px] font-semibold text-ink hover:bg-card-2 transition-colors"
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-ink-3" />
+                        Edit
+                      </button>
+                      <div className="h-px bg-[rgba(255,255,255,0.04)] mx-2" />
+                      <button
+                        onClick={() => {
+                          setDeleteTarget(entry.id);
+                          setMenuOpenId(null);
+                        }}
+                        className="flex items-center gap-2.5 w-full px-3 py-2.5 text-[13px] font-semibold hover:bg-[rgba(248,113,113,0.08)] transition-colors"
+                        style={{ color: '#f87171' }}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Delete
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
@@ -239,10 +278,30 @@ export default function RaseedDetailPage() {
         onClose={() => setShowAddEntry(false)}
         raseedId={id}
         existingEntries={data.entries}
-        onCreated={() => {
-          qc.invalidateQueries({ queryKey: ['raseed', id] });
-          showToast('Entry added');
+        onCreated={() => qc.invalidateQueries({ queryKey: ['raseed', id] })}
+        editEntry={null}
+      />
+
+      <AddEntryModal
+        open={!!editTarget}
+        onClose={() => setEditTarget(null)}
+        raseedId={id}
+        existingEntries={data.entries}
+        onCreated={() => qc.invalidateQueries({ queryKey: ['raseed', id] })}
+        editEntry={editTarget}
+      />
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete Entry"
+        description="This entry will be permanently deleted. This cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={() => {
+          if (deleteTarget) deleteEntry.mutate(deleteTarget);
+          setDeleteTarget(null);
         }}
+        onCancel={() => setDeleteTarget(null)}
       />
     </div>
   );

@@ -1,13 +1,14 @@
 'use client';
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, BookOpen, ChevronRight } from 'lucide-react';
+import { BookOpen, MoreVertical, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { AddRaseedModal } from '@/components/raseed/add-raseed-modal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 type RaseedItem = {
   id: string;
@@ -28,10 +29,24 @@ export default function RaseedPage() {
   const qc = useQueryClient();
   const { showToast } = useToast();
   const [showAdd, setShowAdd] = useState(false);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [deleteRaseedId, setDeleteRaseedId] = useState<string | null>(null);
 
   const raseeds = useQuery<RaseedItem[]>({
     queryKey: ['raseeds'],
     queryFn: () => fetch('/api/raseed').then((r) => r.json()).then((d) => d.data ?? [])
+  });
+
+  const deleteRaseedMutation = useMutation({
+    mutationFn: (id: string) =>
+      fetch(`/api/raseed/${id}`, { method: 'DELETE' }).then((r) => r.json()),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['raseeds'] });
+      showToast('Log deleted');
+    },
+    onError: () => {
+      showToast('Failed to delete log', 'error');
+    }
   });
 
   const items = (raseeds.data ?? []).map(computeRaseed);
@@ -95,7 +110,33 @@ export default function RaseedPage() {
                 </p>
               </div>
 
-              <ChevronRight className="w-4 h-4 text-ink-4 flex-shrink-0" />
+              <div className="relative flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                <button
+                  onClick={() => setMenuOpenId(menuOpenId === r.id ? null : r.id)}
+                  className="w-8 h-8 rounded-[8px] flex items-center justify-center text-ink-4 hover:text-ink-2 hover:bg-card-2 transition-colors"
+                >
+                  <MoreVertical className="w-4 h-4" />
+                </button>
+
+                {menuOpenId === r.id && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setMenuOpenId(null)} />
+                    <div className="absolute right-0 top-full mt-1 z-50 bg-card border border-stroke rounded-[12px] shadow-card overflow-hidden min-w-[130px]">
+                      <button
+                        onClick={() => {
+                          setDeleteRaseedId(r.id);
+                          setMenuOpenId(null);
+                        }}
+                        className="flex items-center gap-2.5 w-full px-3 py-2.5 text-[13px] font-semibold hover:bg-[rgba(248,113,113,0.08)] transition-colors"
+                        style={{ color: '#f87171' }}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Delete Log
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -117,6 +158,19 @@ export default function RaseedPage() {
           qc.invalidateQueries({ queryKey: ['raseeds'] });
           showToast('Log created');
         }}
+      />
+
+      <ConfirmDialog
+        open={!!deleteRaseedId}
+        title="Delete Log"
+        description="This will permanently delete the log and all its entries. This cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={() => {
+          if (deleteRaseedId) deleteRaseedMutation.mutate(deleteRaseedId);
+          setDeleteRaseedId(null);
+        }}
+        onCancel={() => setDeleteRaseedId(null)}
       />
     </div>
   );

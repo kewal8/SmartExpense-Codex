@@ -12,6 +12,15 @@ import { useIndianNumberInput } from '@/hooks/useIndianNumberInput';
 
 type ExistingEntry = { paidBy: string };
 
+type EditEntry = {
+  id: string;
+  name: string;
+  notes?: string | null;
+  amount: number;
+  paidBy: string;
+  date: string;
+} | null;
+
 function todayInputValue() {
   const d = new Date();
   const y = d.getFullYear();
@@ -25,13 +34,15 @@ export function AddEntryModal({
   onClose,
   raseedId,
   existingEntries,
-  onCreated
+  onCreated,
+  editEntry = null,
 }: {
   open: boolean;
   onClose: () => void;
   raseedId: string;
   existingEntries: ExistingEntry[];
   onCreated: () => void;
+  editEntry?: EditEntry;
 }) {
   const { showToast } = useToast();
   const isMobile = useMediaQuery('(max-width: 767px)');
@@ -44,13 +55,20 @@ export function AddEntryModal({
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
-    if (!open) return;
-    setName('');
-    setAmount('');
-    setPaidBy('');
-    setDate(todayInputValue());
-    setNotes('');
-  }, [open]);
+    if (editEntry) {
+      setName(editEntry.name);
+      setAmount(String(editEntry.amount));
+      setPaidBy(editEntry.paidBy);
+      setNotes(editEntry.notes ?? '');
+      setDate(editEntry.date.split('T')[0]);
+    } else {
+      setName('');
+      setAmount('');
+      setPaidBy('');
+      setDate(todayInputValue());
+      setNotes('');
+    }
+  }, [editEntry, open]);
 
   const usedNames = [...new Set(existingEntries.map((e) => e.paidBy))];
 
@@ -72,6 +90,7 @@ export function AddEntryModal({
       return data;
     },
     onSuccess: () => {
+      showToast('Entry added');
       onCreated();
       onClose();
     },
@@ -80,13 +99,48 @@ export function AddEntryModal({
     }
   });
 
+  const save = useMutation({
+    mutationFn: async () => {
+      if (!editEntry) return;
+      const res = await fetch(`/api/raseed/${raseedId}/entries/${editEntry.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          amount: parseFloat(amount),
+          paidBy,
+          date,
+          notes: notes || undefined
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Failed to update entry');
+      return data;
+    },
+    onSuccess: () => {
+      showToast('Entry updated');
+      onCreated();
+      onClose();
+    },
+    onError: (error) => {
+      showToast(error instanceof Error ? error.message : 'Failed to update entry', 'error');
+    }
+  });
+
+  const isEdit = !!editEntry;
+  const isPending = isEdit ? save.isPending : create.isPending;
+
   const form = (
     <form
       className="space-y-3"
       onSubmit={(e) => {
         e.preventDefault();
-        if (create.isPending) return;
-        create.mutate();
+        if (isPending) return;
+        if (isEdit) {
+          save.mutate();
+        } else {
+          create.mutate();
+        }
       }}
     >
       <div>
@@ -138,22 +192,24 @@ export function AddEntryModal({
         <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional note" />
       </div>
 
-      <Button type="submit" className="w-full" isLoading={create.isPending} loadingLabel="Adding...">
-        Add Entry
+      <Button type="submit" className="w-full" isLoading={isPending} loadingLabel={isEdit ? 'Saving...' : 'Adding...'}>
+        {isEdit ? 'Save Changes' : 'Add Entry'}
       </Button>
     </form>
   );
 
+  const title = isEdit ? 'Edit Entry' : 'Add Entry';
+
   if (isMobile) {
     return (
-      <BottomSheet open={open} onClose={onClose} title="Add Entry">
+      <BottomSheet open={open} onClose={onClose} title={title}>
         {form}
       </BottomSheet>
     );
   }
 
   return (
-    <Modal open={open} onOpenChange={(v) => { if (!v) onClose(); }} title="Add Entry">
+    <Modal open={open} onOpenChange={(v) => { if (!v) onClose(); }} title={title}>
       {form}
     </Modal>
   );
